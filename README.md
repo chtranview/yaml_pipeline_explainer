@@ -1,4 +1,4 @@
-# YAML-Pipeline-Executor
+# YAML-Pipeline-Explainer
 Expert Course Engine · YAML Pipeline 完整解析
 從 /build 到Meta Loop
 逐一拆解 10 個模組的職責、I/O 關係與 ChatGPT 執行邏輯——理解系統如何像工廠一樣自動運作
