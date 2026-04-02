@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expert Course Engine · YAML Pipeline 解析</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f2eb;
+  --paper: #faf8f3;
+  --ink: #1a1612;
+  --ink2: #3a3430;
+  --muted: #8a7f72;
+  --line: #ddd8ce;
+  --a0: #c8440a;   /* pipeline — burnt orange */
+  --a1: #2563a8;   /* engine — cobalt */
+  --a2: #1a7a4a;   /* handout — forest */
+  --a3: #8b3dbf;   /* sdd — violet */
+  --a4: #b55c00;   /* gamma — amber */
+  --a5: #c8440a;   /* notifier */
+  --a6: #1a6060;   /* verifier — teal */
+  --a7: #555;      /* packager */
+  --a8: #2563a8;   /* bridge */
+  --a9: #8b3dbf;   /* meta */
+  --highlight: #fff8e7;
+  --tag-bg: #ede9e0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Noto Sans TC', sans-serif;
+  line-height: 1.6;
+}
+
+/* Noise texture overlay */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; opacity: 0.4;
+}
+
+.wrap { max-width: 1060px; margin: 0 auto; padding: 0 28px; position: relative; z-index: 1; }
+
+/* ── HEADER ── */
+header {
+  padding: 64px 0 48px;
+  border-bottom: 2px solid var(--ink);
+}
+.h-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: clamp(32px, 6vw, 60px);
+  line-height: 1.05;
+  margin-bottom: 12px;
+}
+h1 em { color: var(--a0); font-style: italic; }
+.h-sub {
+  font-size: 15px;
+  color: var(--ink2);
+  max-width: 580px;
+  margin-top: 8px;
+}
+
+/* ── FLOW DIAGRAM ── */
+.flow-section { padding: 48px 0 0; }
+.sec-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 22px;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 10px;
+}
+.sec-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  background: var(--ink);
+  color: var(--bg);
+  padding: 2px 8px;
+  border-radius: 2px;
+}
+.sec-desc { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
+
+/* Pipeline flow */
+.pipeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.pipe-row {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 0 20px;
+  cursor: pointer;
+}
+
+.pipe-spine {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.pipe-dot {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 3px solid var(--ink);
+  background: var(--bg);
+  flex-shrink: 0;
+  margin-top: 20px;
+  transition: all 0.2s;
+  position: relative; z-index: 1;
+}
+.pipe-row.active .pipe-dot { background: var(--ink); }
+.pipe-line {
+  width: 3px;
+  flex: 1;
+  background: var(--line);
+  margin: 0 auto;
+}
+.pipe-row:last-child .pipe-line { display: none; }
+
+.pipe-card {
+  background: var(--paper);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  margin: 8px 0;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.pipe-row:hover .pipe-card { border-color: var(--ink2); box-shadow: 3px 3px 0 var(--line); }
+.pipe-row.active .pipe-card { border-color: var(--ink); box-shadow: 4px 4px 0 var(--ink2); }
+
+.pipe-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+}
+.pipe-id {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.pipe-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  flex: 1;
+}
+.pipe-role {
+  font-size: 13px;
+  color: var(--muted);
+}
+.pipe-arrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  color: var(--muted);
+  transition: transform 0.2s;
+}
+.pipe-row.active .pipe-arrow { transform: rotate(180deg); }
+
+/* Expanded panel */
+.pipe-body {
+  display: none;
+  border-top: 1.5px solid var(--line);
+  background: var(--highlight);
+}
+.pipe-row.active .pipe-body { display: block; }
+
+.pipe-body-inner {
+  padding: 20px 20px 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 600px) { .pipe-body-inner { grid-template-columns: 1fr; } }
+
+.detail-block { }
+.detail-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.detail-code {
+  background: var(--ink);
+  color: #e8e4da;
+  border-radius: 6px;
+  padding: 14px 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-x: auto;
+}
+.c-k  { color: #85c1f5; }
+.c-s  { color: #7de0b5; }
+.c-c  { color: #5a7a6a; font-style: italic; }
+.c-o  { color: #f5a855; }
+.c-v  { color: #d08080; }
+
+.detail-list { list-style: none; }
+.detail-list li {
+  display: flex; gap: 8px;
+  font-size: 13px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink2);
+}
+.detail-list li:last-child { border-bottom: none; }
+.li-icon { flex-shrink: 0; font-size: 12px; }
+
+.io-row {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; margin-bottom: 6px;
+}
+.io-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.io-in  { background: rgba(37,99,168,0.12); color: var(--a1); }
+.io-out { background: rgba(26,122,74,0.12);  color: var(--a2); }
+.io-dep { background: rgba(139,61,191,0.12); color: var(--a3); }
+.io-val { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--ink2); }
+
+/* ── ARTIFACTS ── */
+.artifacts-section { padding: 48px 0; }
+
+.artifact-tree {
+  background: var(--ink);
+  border-radius: 12px;
+  padding: 28px 32px;
+  overflow-x: auto;
+}
+.artifact-tree pre {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  line-height: 2;
+  color: #c8c0b0;
+}
+.at-dir  { color: #85c1f5; }
+.at-file { color: #7de0b5; }
+.at-com  { color: #5a7a6a; }
+.at-hot  { color: #f5a855; }
+
+/* ── HOW CHATGPT RUNS ── */
+.howto-section { padding: 0 0 64px; }
+.steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 20px; }
+.step-card {
+  background: var(--paper);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 20px;
+  position: relative;
+}
+.step-n {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: 48px;
+  color: var(--line);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.step-title { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+.step-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.step-code {
+  margin-top: 12px;
+  background: var(--tag-bg);
+  border-radius: 5px;
+  padding: 10px 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--ink2);
+  line-height: 1.7;
+}
+
+/* ── EXAMPLE PROMPT ── */
+.example-section { padding: 0 0 64px; }
+.prompt-box {
+  background: var(--ink);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.prompt-bar {
+  background: #2a2520;
+  padding: 10px 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.prompt-dot { width: 10px; height: 10px; border-radius: 50%; }
+.pd1 { background: #f55; }
+.pd2 { background: #fa0; }
+.pd3 { background: #5c5; }
+.prompt-label { font-family: 'DM Mono', monospace; font-size: 11px; color: #5a5a6a; margin-left: auto; }
+.prompt-body { padding: 24px 28px; font-family: 'DM Mono', monospace; font-size: 13px; line-height: 1.9; color: #c8c0b0; }
+.p-user { color: #85c1f5; }
+.p-sys  { color: #f5a855; }
+.p-key  { color: #7de0b5; }
+.p-com  { color: #5a7a6a; }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 2px solid var(--ink);
+  padding: 24px 0;
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted);
+}
+
+/* Animations */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.pipe-body { animation: fadeIn 0.2s ease; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<!-- HEADER -->
+<header>
+  <div class="h-eyebrow">Expert Course Engine · YAML Pipeline 完整解析</div>
+  <h1>從 <em>/build</em> 到<br>Meta Loop</h1>
+  <p class="h-sub">逐一拆解 10 個模組的職責、I/O 關係與 ChatGPT 執行邏輯——理解系統如何像工廠一樣自動運作</p>
+</header>
+
+<!-- PIPELINE -->
+<section class="flow-section">
+  <div class="sec-title"><span class="sec-num">01</span> 模組流水線全覽</div>
+  <p class="sec-desc">點擊任一模組，展開 YAML 結構、職責說明與 I/O 關係</p>
+
+  <div class="pipeline">
+
+    <!-- 0 build -->
+    <div class="pipe-row" onclick="toggle(this)" style="--c:#c8440a">
+      <div class="pipe-spine"><div class="pipe-dot"></div><div class="pipe-line"></div></div>
+      <div class="pipe-card">
+        <div class="pipe-head">
+          <div class="pipe-id" style="background:#c8440a">0</div>
+          <div class="pipe-name">0_build_pipeline.yaml</div>
+          <div class="pipe-role">一鍵建置流程 · 總指揮</div>
+          <div class="pipe-arrow">▼</div>
+        </div>
+        <div class="pipe-body">
+          <div class="pipe-body-inner">
+            <div class="detail-block">
+              <div class="detail-label">YAML 結構</div>
+              <div class="detail-code"><span class="c-k">trigger</span>: <span class="c-s">"/build"</span>
+<span class="c-k">description</span>: <span class="c-s">"主控入口，接收指令</span>
+<span class="c-s">  後依序呼叫所有子模組"</span>
+
+<span class="c-k">sequence</span>:
+  - <span class="c-o">call</span>: <span class="c-s">1_project_engine</span>
+  - <span class="c-o">call</span>: <span class="c-s">2_learner_handout_generator</span>
+  - <span class="c-o">call</span>: <span class="c-s">3_sdd_auto_generator</span>
+  - <span class="c-o">call</span>: <span class="c-s">4_gamma_generator</span>
+  - <span class="c-o">call</span>: <span class="c-s">6_verifier_auto_checker</span>
+  - <span class="c-o">call</span>: <span class="c-s">7_packager_auto_zipper</span>
+  - <span class="c-o">call</span>: <span class="c-s">5_notifier_auto_dispatch</span>
+
+<span class="c-k">on_error</span>: <span class="c-s">abort_and_log</span></div>
+            </div>
+            <div class="detail-block">
+              <div class="detail-label">職責與運作原理</div>
+              <ul class="detail-list">
+                <li><span class="li-icon">🎯</span>使用者輸入 <code>/build</code> 後，此模組作為「總排程器」依序觸發所有子流程</li>
+                <li><span class="li-icon">🔗</span>每個 <code>call</code> 都是同步呼叫：前一步完成才進入下一步</li>
+                <li><span class="li-icon">🛑</span><code>on_error: abort_and_log</code> — 任一步驟失敗則中止並記錄錯誤至 <code>_logs/</code></li>
+                <li><span class="li-icon">💡</span>在 ChatGPT 中，這個 YAML 被貼入 System Prompt，GPT 解讀後模擬「執行」各步驟</li>
+              </ul>
+              <div style="margin-top:12px">
+                <div class="io-row"><span class="io-label io-in">INPUT</span><span class="io-val">/build + 課程主題</span></div>
+                <div class="io-row"><span class="io-label io-out">OUTPUT</span><span class="io-val">觸發完整 pipeline 執行</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1 project engine -->
+    <div class="pipe-row" onclick="toggle(this)">
+      <div class="pipe-spine"><div class="pipe-dot"></div><div class="pipe-line"></div></div>
+      <div class="pipe-card">
+        <div class="pipe-head">
+          <div class="pipe-id" style="background:#2563a8">1</div>
+          <div class="pipe-name">1_project_engine_4.0.yaml</div>
+          <div class="pipe-role">課程骨架 × 教案引擎</div>
+          <div class="pipe-arrow">▼</div>
+        </div>
+        <div class="pipe-body">
+          <div class="pipe-body-inner">
+            <div class="detail-block">
+              <div class="detail-label">YAML 結構</div>
+              <div class="detail-code"><span class="c-k">module_id</span>: <span class="c-s">project_engine</span>
+<span class="c-k">version</span>: <span class="c-s">"4.0"</span>
+
+<span class="c-k">inputs</span>:
+  - <span class="c-k">field</span>: <span class="c-s">course_topic</span>
+    <span class="c-k">required</span>: <span class="c-v">true</span>
+  - <span class="c-k">field</span>: <span class="c-s">duration_days</span>
+    <span class="c-k">default</span>: <span class="c-o">2</span>
+  - <span class="c-k">field</span>: <span class="c-s">audience_level</span>
+    <span class="c-k">options</span>: [beginner, intermediate, advanced]
+
+<span class="c-k">steps</span>:
+  - <span class="c-s">define_learning_objectives</span>
+  - <span class="c-s">break_into_modules</span>   <span class="c-c"># 每模組獨立 I/O</span>
+  - <span class="c-s">sequence_by_dependency</span>
+  - <span class="c-s">assign_time_blocks</span>
+
+<span class="c-k">output</span>:
+  <span class="c-k">path</span>: <span class="c-s">artifacts/handouts/outline.yaml</span>
+  <span class="c-k">also_passes_to</span>: <span class="c-s">[2, 3, 4]</span></div>
+            </div>
+            <div class="detail-block">
+              <div class="detail-label">職責與運作原理</div>
+              <ul class="detail-list">
+                <li><span class="li-icon">🏗️</span>整個系統的「地基」——先定義課程結構，後續模組才知道要生成什麼</li>
+                <li><span class="li-icon">📐</span>將課程拆解為獨立模組，每個模組有明確的學習目標、時長、先後依賴</li>
+                <li><span class="li-icon">📤</span><code>also_passes_to: [2, 3, 4]</code> — 輸出的 outline.yaml 同時被後三個模組當作輸入</li>
+                <li><span class="li-icon">🔢</span>version 4.0 表示這是第四代迭代，欄位設計趨於穩定</li>
+              </ul>
+              <div style="margin-top:12px">
+                <div class="io-row"><span class="io-label io-in">INPUT</span><span class="io-val">course_topic, duration_days, audience_level</span></div>
+                <div class="io-row"><span class="io-label io-out">OUTPUT</span><span class="io-val">artifacts/handouts/outline.yaml</span></div>
+                <div class="io-row"><span class="io-label io-dep">FEEDS</span><span class="io-val">模組 2、3、4 同時讀取此輸出</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2 handout -->
+    <div class="pipe-row" onclick="toggle(this)">
+      <div class="pipe-spine"><div class="pipe-dot"></div><div class="pipe-line"></div></div>
+      <div class="pipe-card">
+        <div class="pipe-head">
+          <div class="pipe-id" style="background:#1a7a4a">2</div>
+          <div class="pipe-name">2_learner_handout_generator.yaml</div>
+          <div class="pipe-role">學員講義生成器</div>
+          <div class="pipe-arrow">▼</div>
+        </div>
+        <div class="pipe-body">
+          <div class="pipe-body-inner">
+            <div class="detail-block">
+              <div class="detail-label">YAML 結構</div>
+              <div class="detail-code"><span class="c-k">depends_on</span>: <span class="c-s">1_project_engine</span>
+<span class="c-k">reads</span>: <span class="c-s">artifacts/handouts/outline.yaml</span>
+
+<span class="c-k">template</span>: <span class="c-s">prompts/handout_template.md</span>
+<span class="c-k">loop_over</span>: <span class="c-s">outline.modules</span>  <span class="c-c"># 每模組跑一次</span>
+
+<span class="c-k">per_module_output</span>:
+  <span class="c-k">format</span>: [<span class="c-s">yaml</span>, <span class="c-s">md</span>]
+  <span class="c-k">includes</span>:
+    - <span class="c-s">objectives</span>       <span class="c-c"># 學習目標</span>
+    - <span class="c-s">key_concepts</span>     <span class="c-c"># 核心概念</span>
+    - <span class="c-s">hands_on_task</span>    <span class="c-c"># 動手實作</span>
+    - <span class="c-s">takeaway</span>         <span class="c-c"># 帶走成果</span>
+    - <span class="c-s">reflection_qs</span>    <span class="c-c"># 反思問題</span>
+
+<span class="c-k">output_path</span>: <span class="c-s">artifacts/handouts/{module_id}.md</span></div>
+            </div>
+            <div class="detail-block">
+              <div class="detail-label">職責與運作原理</div>
+              <ul class="detail-list">
+                <li><span class="li-icon">📄</span><code>loop_over: outline.modules</code> — 對每個模組「迴圈」執行，自動批量生成所有講義</li>
+                <li><span class="li-icon">🗂️</span>每份講義包含五個固定欄位，確保格式一致、品質可驗證</li>
+                <li><span class="li-icon">📁</span>以 <code>{module_id}</code> 命名輸出檔，避免衝突且易於追蹤</li>
+                <li><span class="li-icon">🔄</span>同時輸出 YAML（機器讀）+ MD（人讀），供後續模組引用</li>
+              </ul>
+              <div style="margin-top:12px">
+                <div class="io-row"><span class="io-label io-dep">DEPENDS</span><span class="io-val">outline.yaml（來自模組 1）</span></div>
+                <div class="io-row"><span class="io-label io-out">OUTPUT</span><span class="io-val">artifacts/handouts/{module_id}.md</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 sdd -->
+    <div class="pipe-row" onclick="toggle(this)">
+      <div class="pipe-spine"><div class="pipe-dot"></div><div class="pipe-line"></div></div>
+      <div class="pipe-card">
+        <div class="pipe-head">
+          <div class="pipe-id" style="background:#8b3dbf">3</div>
+          <div class="pipe-name">3_sdd_auto_generator.yaml</div>
+          <div class="pipe-role">App SDD 自動化生成</div>
+          <div class="pipe-arrow">▼</div>
+        </div>
+        <div class="pipe-body">
+          <div class="pipe-body-inner">
+            <div class="detail-block">
+              <div class="detail-label">YAML 結構</div>
+              <div class="detail-code"><span class="c-k">purpose</span>: <span class="c-s">"將課程實作任務轉化為</span>
+<span class="c-s">  可執行的 App 規格文件"</span>
+
+<span class="c-k">reads</span>:
+  - <span class="c-s">artifacts/handouts/outline.yaml</span>
+  - <span class="c-s">artifacts/handouts/*.md</span>  <span class="c-c"># 所有講義</span>
+
+<span class="c-k">extract</span>: <span class="c-s">hands_on_task</span>  <span class="c-c"># 只取實作欄位</span>
+
+<span class="c-k">sdd_schema</span>:
+  <span class="c-k">sections</span>:
+    - <span class="c-s">app_name_and_goal</span>
+    - <span class="c-s">user_stories</span>
+    - <span class="c-s">feature_list</span>
+    - <span class="c-s">data_model</span>
+    - <span class="c-s">ui_wireframe_description</span>
+    - <span class="c-s">success_criteria</span>
+
+<span class="c-k">output_path</span>: <span class="c-s">artifacts/sdd/{module_id}_sdd.yaml</span></div>
+            </div>
+            <div class="detail-block">
+              <div class="detail-label">職責與運作原理</div>
+              <ul class="detail-list">
+                <li><span class="li-icon">📋</span>SDD = Software Design Document，把「課程實作任務」升格為可開發的 App 規格</li>
+                <li><span class="li-icon">🔍</span><code>extract: hands_on_task</code> — 只擷取講義中的實作欄位，不重複處理理論內容</li>
+                <li><span class="li-icon">🏛️</span>固定的六段式 schema 讓每份 SDD 結構統一，學員可直接拿去開發</li>
+                <li><span class="li-icon">✅</span>最後一欄 <code>success_criteria</code> 讓學員知道「完成」長什麼樣</li>
+              </ul>
+              <div style="margin-top:12px">
+                <div class="io-row"><span class="io-label io-dep">DEPENDS</span><span class="io-val">outline.yaml + 所有 handout.md</span></div>
+                <div class="io-row"><span class="io-label io-out">OUTPUT</span><span class="io-val">artifacts/sdd/{module_id}_sdd.yaml</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4 gamma -->
+    <div class="pipe-row" onclick="toggle(this)">
+      <div class="pipe-spine"><div class="pipe-dot"></div><div class="pipe-line"></div></div>
+      <div class="pipe-card">
+        <div class="pipe-head">
+          <div class="pipe-id" style="background:#b55c00">4</div>
+          <div class="pipe-name">4_gamma_generator.yaml</div>
+          <div class="pipe-role">投影片文字生成器（Gamma 用）</div>
+          <div class="pipe-arrow">▼</div>
+        </div>
+        <div class="pipe-body">
+          <div class="pipe-body-inner">
+            <div class="detail-block">
+              <div class="detail-label">YAML 結構</div>
+              <div class="detail-code"><span class="c-k">target_tool</span>: <span class="c-s">"Gamma.app"</span>
+<span class="c-k">reads</span>: <span class="c-s">artifacts/handouts/*.md</span>
+
+<span class="c-k">slide_rules</span>:
+  <span class="c-k">words_per_slide</span>: <span class="c-o">max 40</span>
+  <span class="c-k">structure</span>:
+    - <span class="c-s">title_slide</span>
+    - <span class="c-s">agenda</span>
+    - <span class="c-s">concept_slides</span>      <span class="c-c"># 1 概念 = 1 頁</span>
+    - <span class="c-s">hands_on_slide</span>      <span class="c-c"># 實作說明頁</span>
+    - <span class="c-s">takeaway_slide</span>
+
+<span class="c-k">tone</span>: <span class="c-s">"direct, visual-first, no filler"</span>
+<span class="c-k">language</span>: <span class="c-s">zh-TW</span>
+
+<span class="c-k">output_path</span>: <span class="c-s">artifacts/gamma/{module_id}_deck.md</span></div>
+            </div>
+            <div class="detail-block">
+              <div class="detail-label">職責與運作原理</div>
+              <ul class="detail-list">
+                <li><span class="li-icon">🖼️</span>專門為 Gamma.app 生成適合的投影片文本，非通用文字輸出</li>
+                <li><span class="li-icon">📏</span><code>words_per_slide: max 40</code> — 硬性限制每頁字數，確保視覺簡潔</li>
+                <li><span class="li-icon">🔁</span>從講義（長文）自動壓縮成簡報（短文），是「格式轉換」而非重新生成</li>
+                <li><span class="li-icon">🌐</span>明確指定 <code>zh-TW</code>，避免混用繁簡或英文</li>
+              </ul>
+              <div style="margin-top:12px">
+                <div class="io-row"><span class="io-label io-dep">DEPENDS</span><span class="io-val">artifacts/handouts/*.md</span></div>
+                <div class="io-row"><span class="io-label io-out">OUTPUT</span><span class="io-val">artifacts/gamma/{module_id}_deck.md</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5 notifier -->
+    <div class="pipe-row" onclick="toggle(this)">
+      <div class="pipe-spine"><div class="pipe-dot"></div><div class="pipe-line"></div></div>
+      <div class="pipe-card">
+        <div class="pipe-head">
+          <div class="pipe-id" style="background:#c8440a">5</div>
+          <div class="pipe-name">5_notifier_auto_dispatch.yaml</div>
+          <div class="pipe-role">學員通知 × Email / LINE 自動寄送</div>
+          <div class="pipe-arrow">▼</div>
+        </div>
+        <div class="pipe-body">
+          <div class="pipe-body-inner">
+            <div class="detail-block">
+              <div class="detail-label">YAML 結構</div>
+              <div class="detail-code"><span class="c-k">trigger</span>: <span class="c-s">"after 7_packager completes"</span>
+
+<span class="c-k">channels</span>:
+  - <span class="c-k">type</span>: <span class="c-s">email</span>
+    <span class="c-k">template</span>: <span class="c-s">prompts/email_notify.md</span>
+    <span class="c-k">to</span>: <span class="c-s">"{{learner_list}}"</span>
+  - <span class="c-k">type</span>: <span class="c-s">line_message</span>
+    <span class="c-k">template</span>: <span class="c-s">prompts/line_notify.md</span>
+    <span class="c-k">webhook</span>: <span class="c-s">"{{LINE_WEBHOOK_URL}}"</span>
+
+<span class="c-k">message_includes</span>:
+  - <span class="c-s">course_name</span>
+  - <span class="c-s">bundle_download_link</span>  <span class="c-c"># 來自 packager</span>
+  - <span class="c-s">schedule_reminder</span>
+
+<span class="c-k">fallback</span>: <span class="c-s">log_to_artifacts/_logs</span></div>
+            </div>
+            <div class="detail-block">
+              <div class="detail-label">職責與運作原理</div>
+              <ul class="detail-list">
+                <li><span class="li-icon">📨</span>pipeline 最末端的「對外介面」——產出物完成後自動通知相關人員</li>
+                <li><span class="li-icon">🔗</span>在 ChatGPT 中：生成通知文字草稿；實際寄送需搭配 Zapier / Make.com webhook</li>
+                <li><span class="li-icon">📦</span>帶入 packager 輸出的下載連結，讓學員直接取得材料</li>
+                <li><span class="li-icon">🛡️</span><code>fallback: log</code> — 寄送失敗不中斷流程，改為記錄錯誤</li>
+              </ul>
+              <div style="margin-top:12px">
+                <div class="io-row"><span class="io-label io-dep">DEPENDS</span><span class="io-val">7_packager 完成後觸發</span></div>
+                <div class="io-row"><span class="io-label io-out">OUTPUT</span><span class="io-val">Email + LINE 通知 / 記錄至 _logs/</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6 verifier -->
+    <div class="pipe-row" onclick="toggle(this)">
+      <div class="pipe-spine"><div class="pipe-dot"></div><div class="pipe-line"></div></div>
+      <div class="pipe-card">
+        <div class="pipe-head">
+          <div class="pipe-id" style="background:#1a6060">6</div>
+          <div class="pipe-name">6_verifier_auto_checker.yaml</div>
+          <div class="pipe-role">產物品質檢核與修復</div>
+          <div class="pipe-arrow">▼</div>
+        </div>
+        <div class="pipe-body">
+          <div class="pipe-body-inner">
+            <div class="detail-block">
+              <div class="detail-label">YAML 結構</div>
+              <div class="detail-code"><span class="c-k">checks</span>:
+  - <span class="c-k">rule</span>: <span class="c-s">all_modules_have_handout</span>
+    <span class="c-k">source</span>: <span class="c-s">artifacts/handouts/</span>
+    <span class="c-k">on_fail</span>: <span class="c-s">re_run module 2</span>
+
+  - <span class="c-k">rule</span>: <span class="c-s">no_missing_fields</span>
+    <span class="c-k">required_fields</span>:
+      - <span class="c-s">objectives</span>
+      - <span class="c-s">hands_on_task</span>
+      - <span class="c-s">takeaway</span>
+    <span class="c-k">on_fail</span>: <span class="c-s">flag_to _issues/</span>
+
+  - <span class="c-k">rule</span>: <span class="c-s">yaml_schema_valid</span>
+    <span class="c-k">on_fail</span>: <span class="c-s">auto_fix_or_escalate</span>
+
+<span class="c-k">report_path</span>: <span class="c-s">artifacts/_reports/verify.md</span></div>
+            </div>
+            <div class="detail-block">
+              <div class="detail-label">職責與運作原理</div>
+              <ul class="detail-list">
+                <li><span class="li-icon">🔍</span>pipeline 的「品管站」——確認所有產物符合規格才允許打包</li>
+                <li><span class="li-icon">♻️</span><code>on_fail: re_run module 2</code> — 驗證失敗可自動重跑上游模組（自愈機制）</li>
+                <li><span class="li-icon">📋</span>生成 verify report，讓人類審閱哪些項目通過、哪些需人工確認</li>
+                <li><span class="li-icon">🗂️</span>問題記錄到 <code>_issues/</code>，形成可追蹤的錯誤清單</li>
+              </ul>
+              <div style="margin-top:12px">
+                <div class="io-row"><span class="io-label io-in">INPUT</span><span class="io-val">artifacts/ 下所有產物</span></div>
+                <div class="io-row"><span class="io-label io-out">OUTPUT</span><span class="io-val">_reports/verify.md + _issues/</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7 packager -->
+    <div class="pipe-row" onclick="toggle(this)">
+      <div class="pipe-spine"><div class="pipe-dot"></div><div class="pipe-line"></div></div>
+      <div class="pipe-card">
+        <div class="pipe-head">
+          <div class="pipe-id" style="background:#555">7</div>
+          <div class="pipe-name">7_packager_auto_zipper.yaml</div>
+          <div class="pipe-role">模組成果打包 ZIP 交付</div>
+          <div class="pipe-arrow">▼</div>
+        </div>
+        <div class="pipe-body">
+          <div class="pipe-body-inner">
+            <div class="detail-block">
+              <div class="detail-label">YAML 結構</div>
+              <div class="detail-code"><span class="c-k">depends_on</span>: <span class="c-s">6_verifier</span>  <span class="c-c"># 驗證通過才打包</span>
+
+<span class="c-k">include</span>:
+  - <span class="c-s">artifacts/handouts/**</span>
+  - <span class="c-s">artifacts/sdd/**</span>
+  - <span class="c-s">artifacts/gamma/**</span>
+  - <span class="c-s">artifacts/_reports/verify.md</span>
+
+<span class="c-k">exclude</span>:
+  - <span class="c-s">artifacts/_logs/**</span>    <span class="c-c"># 內部紀錄不交付</span>
+  - <span class="c-s">artifacts/_issues/**</span>  <span class="c-c"># 錯誤清單不交付</span>
+  - <span class="c-s">artifacts/_queues/**</span>
+
+<span class="c-k">bundle_name</span>: <span class="c-s">"{{course_topic}}_{{date}}.zip"</span>
+<span class="c-k">output_path</span>: <span class="c-s">artifacts/bundles/</span></div>
+            </div>
+            <div class="detail-block">
+              <div class="detail-label">職責與運作原理</div>
+              <ul class="detail-list">
+                <li><span class="li-icon">📦</span>只打包「交付給學員」的檔案，內部日誌、錯誤記錄一律排除</li>
+                <li><span class="li-icon">🔐</span><code>depends_on: 6_verifier</code> — 品管未通過則此步驟不執行（防呆設計）</li>
+                <li><span class="li-icon">📅</span>以日期命名 bundle，方便版本管理與重新交付</li>
+                <li><span class="li-icon">➡️</span>完成後觸發 5_notifier 寄出下載連結</li>
+              </ul>
+              <div style="margin-top:12px">
+                <div class="io-row"><span class="io-label io-dep">DEPENDS</span><span class="io-val">6_verifier 通過</span></div>
+                <div class="io-row"><span class="io-label io-out">OUTPUT</span><span class="io-val">artifacts/bundles/課程名_日期.zip</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8 bridge -->
+    <div class="pipe-row" onclick="toggle(this)">
+      <div class="pipe-spine"><div class="pipe-dot"></div><div class="pipe-line"></div></div>
+      <div class="pipe-card">
+        <div class="pipe-head">
+          <div class="pipe-id" style="background:#2563a8">8</div>
+          <div class="pipe-name">8_bridge_connector.yaml</div>
+          <div class="pipe-role">外部資料橋接（Sheets / Airtable / Notion）</div>
+          <div class="pipe-arrow">▼</div>
+        </div>
+        <div class="pipe-body">
+          <div class="pipe-body-inner">
+            <div class="detail-block">
+              <div class="detail-label">YAML 結構</div>
+              <div class="detail-code"><span class="c-k">connections</span>:
+  - <span class="c-k">name</span>: <span class="c-s">google_sheets</span>
+    <span class="c-k">type</span>: <span class="c-s">read</span>
+    <span class="c-k">source</span>: <span class="c-s">"{{SHEET_ID}}/learner_roster"</span>
+    <span class="c-k">maps_to</span>: <span class="c-s">learner_list</span>
+
+  - <span class="c-k">name</span>: <span class="c-s">airtable</span>
+    <span class="c-k">type</span>: <span class="c-s">write</span>
+    <span class="c-k">target</span>: <span class="c-s">"{{AIRTABLE_BASE}}/course_log"</span>
+    <span class="c-k">writes</span>: <span class="c-s">pipeline_run_summary</span>
+
+  - <span class="c-k">name</span>: <span class="c-s">notion</span>
+    <span class="c-k">type</span>: <span class="c-s">write</span>
+    <span class="c-k">target</span>: <span class="c-s">"{{NOTION_PAGE_ID}}"</span>
+    <span class="c-k">writes</span>: <span class="c-s">artifacts/_reports/verify.md</span>
+
+<span class="c-k">auth</span>: <span class="c-s">env_vars</span>  <span class="c-c"># 不硬寫在 YAML 裡</span></div>
+            </div>
+            <div class="detail-block">
+              <div class="detail-label">職責與運作原理</div>
+              <ul class="detail-list">
+                <li><span class="li-icon">🌉</span>「橋接層」——讓 AI 系統與外部真實工具雙向溝通</li>
+                <li><span class="li-icon">📥</span>從 Google Sheets 讀取學員名單，注入到 notifier 的 <code>learner_list</code></li>
+                <li><span class="li-icon">📤</span>執行摘要寫回 Airtable / Notion，形成可追蹤的課程歷程</li>
+                <li><span class="li-icon">🔑</span><code>auth: env_vars</code> — 憑證不寫死在 YAML，透過環境變數注入（安全設計）</li>
+              </ul>
+              <div style="margin-top:12px">
+                <div class="io-row"><span class="io-label io-in">INPUT</span><span class="io-val">Google Sheets 學員名單（外部）</span></div>
+                <div class="io-row"><span class="io-label io-out">OUTPUT</span><span class="io-val">寫入 Airtable / Notion（外部）</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9 meta loop -->
+    <div class="pipe-row" onclick="toggle(this)">
+      <div class="pipe-spine"><div class="pipe-dot"></div><div class="pipe-line" style="display:none"></div></div>
+      <div class="pipe-card">
+        <div class="pipe-head">
+          <div class="pipe-id" style="background:#8b3dbf">9</div>
+          <div class="pipe-name">9_meta_loop.yaml</div>
+          <div class="pipe-role">課程更新 × 持續學習追蹤</div>
+          <div class="pipe-arrow">▼</div>
+        </div>
+        <div class="pipe-body">
+          <div class="pipe-body-inner">
+            <div class="detail-block">
+              <div class="detail-label">YAML 結構</div>
+              <div class="detail-code"><span class="c-k">purpose</span>: <span class="c-s">"讓系統從每次執行中學習，</span>
+<span class="c-s">  自動改善下一輪品質"</span>
+
+<span class="c-k">reads</span>:
+  - <span class="c-s">artifacts/_reports/verify.md</span>
+  - <span class="c-s">artifacts/_logs/**</span>
+  - <span class="c-s">artifacts/_issues/**</span>
+
+<span class="c-k">analyzes</span>:
+  - <span class="c-s">recurring_issues</span>    <span class="c-c"># 反覆出現的錯誤</span>
+  - <span class="c-s">slow_steps</span>          <span class="c-c"># 耗時最長的步驟</span>
+  - <span class="c-s">missing_fields_rate</span> <span class="c-c"># 欄位缺失率</span>
+
+<span class="c-k">outputs</span>:
+  - <span class="c-k">path</span>: <span class="c-s">artifacts/_queues/improvement.yaml</span>
+    <span class="c-k">content</span>: <span class="c-s">"下一版本建議修改清單"</span>
+  - <span class="c-k">path</span>: <span class="c-s">artifacts/_reports/meta_summary.md</span>
+
+<span class="c-k">loops_back_to</span>: <span class="c-s">1_project_engine</span>  <span class="c-c"># 形成閉環</span></div>
+            </div>
+            <div class="detail-block">
+              <div class="detail-label">職責與運作原理</div>
+              <ul class="detail-list">
+                <li><span class="li-icon">🔁</span>整個 pipeline 的「反饋迴路」——讀取所有日誌與錯誤，生成改善建議</li>
+                <li><span class="li-icon">🧠</span>分析反覆出現的問題 → 自動更新 <code>_queues/</code> 中的待辦改善清單</li>
+                <li><span class="li-icon">♾️</span><code>loops_back_to: 1_project_engine</code> — 建議回饋給引擎，讓下一次執行品質更高</li>
+                <li><span class="li-icon">📈</span>這是系統從「工具」進化到「自我優化引擎」的關鍵模組</li>
+              </ul>
+              <div style="margin-top:12px">
+                <div class="io-row"><span class="io-label io-in">INPUT</span><span class="io-val">_reports/ + _logs/ + _issues/</span></div>
+                <div class="io-row"><span class="io-label io-out">OUTPUT</span><span class="io-val">_queues/improvement.yaml</span></div>
+                <div class="io-row"><span class="io-label io-dep">LOOPS TO</span><span class="io-val">1_project_engine（下一輪）</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /pipeline -->
+</section>
+
+<!-- ARTIFACTS TREE -->
+<section class="artifacts-section">
+  <div class="sec-title"><span class="sec-num">02</span> Artifacts 結構與各模組寫入位置</div>
+  <p class="sec-desc">所有模組的輸出都進入 <code>/artifacts/</code>，依類型分層存放</p>
+
+  <div class="artifact-tree">
+<pre><span class="at-dir">artifacts/</span>
+│
+├── <span class="at-dir">handouts/</span>           <span class="at-com">← 模組 2 寫入</span>
+│   ├── <span class="at-file">outline.yaml</span>    <span class="at-com">← 模組 1 生成，2/3/4 共讀</span>
+│   ├── <span class="at-file">M1_intro.md</span>
+│   ├── <span class="at-file">M2_skill.md</span>
+│   └── <span class="at-file">M3_yaml.md</span>
+│
+├── <span class="at-dir">sdd/</span>                <span class="at-com">← 模組 3 寫入</span>
+│   ├── <span class="at-file">M1_intro_sdd.yaml</span>
+│   └── <span class="at-file">M2_skill_sdd.yaml</span>
+│
+├── <span class="at-dir">gamma/</span>              <span class="at-com">← 模組 4 寫入</span>
+│   ├── <span class="at-file">M1_intro_deck.md</span>
+│   └── <span class="at-file">M2_skill_deck.md</span>
+│
+├── <span class="at-dir">bundles/</span>            <span class="at-com">← 模組 7 寫入（對外交付）</span>
+│   └── <span class="at-hot">AI系統設計課_20250402.zip</span>
+│
+├── <span class="at-dir">_reports/</span>           <span class="at-com">← 模組 6 / 9 寫入</span>
+│   ├── <span class="at-file">verify.md</span>       <span class="at-com">品質驗證報告</span>
+│   └── <span class="at-file">meta_summary.md</span> <span class="at-com">系統自我分析摘要</span>
+│
+├── <span class="at-dir">_logs/</span>              <span class="at-com">← 所有模組執行紀錄</span>
+│   └── <span class="at-file">2025-04-02_run.log</span>
+│
+├── <span class="at-dir">_issues/</span>            <span class="at-com">← 模組 6 標記的問題清單</span>
+│   └── <span class="at-file">M3_missing_takeaway.md</span>
+│
+└── <span class="at-dir">_queues/</span>            <span class="at-com">← 模組 9 生成的改善待辦</span>
+    └── <span class="at-file">improvement.yaml</span></pre>
+  </div>
+</section>
+
+<!-- HOW CHATGPT RUNS -->
+<section class="howto-section">
+  <div class="sec-title"><span class="sec-num">03</span> ChatGPT 如何「執行」這套 YAML 系統</div>
+  <p class="sec-desc">YAML 本身不是程式，ChatGPT 扮演「解讀者 + 執行者」角色</p>
+
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-n">01</div>
+      <div class="step-title">將 YAML 貼入 System Prompt</div>
+      <div class="step-desc">把 <code>_index.yaml</code> 或各模組 YAML 貼入 ChatGPT 的系統提示詞，讓 GPT 「閱讀並記住」整套規則</div>
+      <div class="step-code">System: 你是 Expert Course Engine。
+以下是你的執行規範，請嚴格遵守：
+[貼入 YAML 內容]</div>
+    </div>
+    <div class="step-card">
+      <div class="step-n">02</div>
+      <div class="step-title">使用者下達觸發指令</div>
+      <div class="step-desc">輸入 <code>/build</code> 加上課程主題，GPT 解讀為「執行 0_build_pipeline，帶入以下參數」</div>
+      <div class="step-code">User: /build
+課程主題：AI 系統設計工作坊
+天數：2
+受眾：中階</div>
+    </div>
+    <div class="step-card">
+      <div class="step-n">03</div>
+      <div class="step-title">GPT 模擬流水線執行</div>
+      <div class="step-desc">GPT 依照 pipeline 的 <code>sequence</code> 順序，逐步「假裝」執行各模組，輸出對應格式的內容</div>
+      <div class="step-code">▶ 執行 1_project_engine...
+✓ outline.yaml 已生成
+
+▶ 執行 2_handout_generator...
+✓ M1_intro.md 已生成</div>
+    </div>
+    <div class="step-card">
+      <div class="step-n">04</div>
+      <div class="step-title">人工複製輸出 → 真實檔案</div>
+      <div class="step-desc">GPT 的輸出是「文字模擬」，需要手動複製到本地資料夾；或搭配 MCP / API 自動寫檔</div>
+      <div class="step-code"># 進階：搭配 MCP 自動寫檔
+# Claude Desktop → MCP Filesystem
+# → 直接寫入 /artifacts/</div>
+    </div>
+    <div class="step-card">
+      <div class="step-n">05</div>
+      <div class="step-title">驗證 → 打包 → 通知</div>
+      <div class="step-desc">繼續輸入 <code>/verify</code>、<code>/pack</code>，GPT 模擬 6、7 模組執行品質檢核與打包清單</div>
+      <div class="step-code">User: /verify
+▶ 執行 6_verifier...
+✓ 所有模組含 takeaway
+⚠ M3 缺少 hands_on_task
+→ 記錄至 _issues/</div>
+    </div>
+    <div class="step-card">
+      <div class="step-n">06</div>
+      <div class="step-title">Meta Loop 閉環優化</div>
+      <div class="step-desc">每次執行後輸入 <code>/meta</code>，GPT 分析本次問題並生成下一版本的改善建議，寫入 <code>_queues/</code></div>
+      <div class="step-code">User: /meta
+▶ 分析 _issues/ + _logs...
+建議：M3 模板加入
+  hands_on_task 必填驗證
+→ improvement.yaml 已更新</div>
+    </div>
+  </div>
+</section>
+
+<!-- EXAMPLE PROMPT -->
+<section class="example-section">
+  <div class="sec-title"><span class="sec-num">04</span> 實戰 Prompt 範例（可直接使用）</div>
+  <p class="sec-desc">完整的 ChatGPT System Prompt 架構，搭配課程內容直接貼入使用</p>
+
+  <div class="prompt-box">
+    <div class="prompt-bar">
+      <div class="prompt-dot pd1"></div>
+      <div class="prompt-dot pd2"></div>
+      <div class="prompt-dot pd3"></div>
+      <div class="prompt-label">ChatGPT System Prompt</div>
+    </div>
+    <div class="prompt-body">
+<span class="p-sys"># 角色定義</span>
+你是 Expert Course Engine v4.0，一個專門生成 AI 課程材料的自動化系統。
+你的行為由以下 YAML 規範嚴格控制。
+
+<span class="p-sys"># 觸發指令對照表</span>
+<span class="p-key">"/build"</span>    → 執行完整 pipeline（模組 1 → 7）
+<span class="p-key">"/outline"</span>  → 只執行模組 1（生成課程骨架）
+<span class="p-key">"/handout"</span>  → 只執行模組 2（生成指定模組講義）
+<span class="p-key">"/sdd"</span>      → 只執行模組 3（生成 App 規格）
+<span class="p-key">"/deck"</span>     → 只執行模組 4（生成投影片文本）
+<span class="p-key">"/verify"</span>   → 執行模組 6（品質驗證）
+<span class="p-key">"/pack"</span>     → 執行模組 7（列出打包清單）
+<span class="p-key">"/meta"</span>     → 執行模組 9（分析並生成改善建議）
+
+<span class="p-sys"># 輸出格式規則</span>
+- 每個模組輸出前，先打印：<span class="p-key">▶ 執行 {module_id}...</span>
+- 完成後打印：<span class="p-key">✓ {output_filename} 已生成</span>
+- 遇到缺失欄位：<span class="p-key">⚠ {field} 缺失 → 記錄至 _issues/</span>
+- 輸出內容以 yaml 或 markdown 代碼塊包覆
+
+<span class="p-sys"># 執行約束</span>
+- 必填欄位缺少時，停下來詢問，不要自行填充假資料
+- 每個模組輸出後等待確認，再進入下一模組
+- 不在輸出中加入任何解釋或閒聊，只輸出規定的結構
+
+<span class="p-sys"># 記憶範圍</span>
+本次對話中所有已生成的 artifacts 視為「已存在於系統中」，
+後續模組可直接引用前面生成的內容。
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>Expert Course Engine · YAML Pipeline 解析</span>
+  <span>模組 0 → 9 · artifacts 結構 · ChatGPT 執行邏輯</span>
+</footer>
+
+</div><!-- /wrap -->
+
+<script>
+function toggle(row) {
+  const wasActive = row.classList.contains('active');
+  document.querySelectorAll('.pipe-row.active').forEach(r => r.classList.remove('active'));
+  if (!wasActive) row.classList.add('active');
+}
+</script>
+</body>
+</html>
