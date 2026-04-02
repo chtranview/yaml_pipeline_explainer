@@ -1,0 +1,183 @@
+# ============================================================
+# 9_meta_loop.yaml
+# 課程更新 × 持續學習追蹤
+# 觸發：/meta 或在每次 pipeline 完成後自動執行
+# ============================================================
+
+module_id: meta_loop
+version: "1.1"
+trigger: "/meta"
+description: >
+  整個系統的反饋閉環。讀取每次執行的日誌、驗證報告
+  與問題清單，分析反覆出現的問題模式，生成具體的
+  改善建議並存入 _queues/，讓系統從每次執行中學習，
+  下一輪品質持續提升。
+
+# ── 輸入來源 ──────────────────────────────────────────────
+reads:
+  - source: "artifacts/_reports/verify.md"
+    purpose: "本次驗證的通過/失敗詳情"
+    required: true
+
+  - source: "artifacts/_issues/*.md"
+    purpose: "所有已記錄的問題"
+    required: false
+    fallback: "若無問題紀錄，跳過問題分析步驟"
+
+  - source: "artifacts/_logs/*_build.log"
+    purpose: "Pipeline 執行時間與各步驟狀態"
+    required: false
+
+  - source: "artifacts/_queues/improvement.yaml"
+    purpose: "上一輪的改善待辦（若存在，本次分析時一併考量）"
+    required: false
+
+  - source: "artifacts/handouts/outline.yaml"
+    purpose: "課程結構參考"
+    required: true
+
+# ── 分析步驟 ──────────────────────────────────────────────
+analysis_steps:
+
+  - id: collect_issues
+    description: "彙整所有 _issues/ 中的問題清單"
+    output_field: issues_list
+    categorize_by:
+      - severity: [critical, warning, info]
+      - module_source: [M1, M2, M3, ...]
+      - issue_type: [missing_field, format_error, content_quality, schema_error]
+
+  - id: identify_patterns
+    description: "找出反覆出現（≥2次）的問題模式"
+    rule: "同一 issue_type 在不同模組中出現 ≥ 2 次 → 視為系統性問題"
+    output_field: recurring_patterns
+    examples:
+      - pattern: "hands_on_task 缺少步驟說明"
+        frequency: 3
+        affected_modules: [M2, M3, M4]
+        root_cause_hypothesis: "handout_template 中此段未明確要求步驟格式"
+
+  - id: analyze_performance
+    description: "分析各步驟執行效率"
+    from: "_logs/"
+    metrics:
+      - slowest_step:        "耗時超過平均 2 倍的步驟"
+      - highest_retry_rate:  "重試次數最多的模組"
+      - most_issues_source:  "產出問題最多的模組"
+    output_field: performance_insights
+
+  - id: review_previous_queue
+    description: "檢視上一輪的改善待辦是否已解決"
+    from: "_queues/improvement.yaml"
+    rule:
+      - "標記為 'applied' 的項目 → 驗證本次是否改善"
+      - "標記為 'pending' 的項目 → 繼續列入本次報告"
+    output_field: queue_status_update
+
+  - id: generate_recommendations
+    description: "根據分析結果生成具體改善建議"
+    input_from: [recurring_patterns, performance_insights, queue_status_update]
+    recommendation_schema:
+      - rec_id: string              # REC_001, REC_002...
+        priority: critical | high | medium | low
+        target_module: string       # 建議改善哪個模組
+        target_element: string      # 具體改哪個欄位或規則
+        problem_description: string # 問題是什麼
+        suggested_fix: string       # 具體怎麼改
+        expected_impact: string     # 改善後預期效果
+        status: pending | in_progress | applied
+
+  - id: update_improvement_queue
+    description: "將新建議合併進 _queues/improvement.yaml"
+    merge_strategy:
+      - "新 rec_id 直接加入"
+      - "已存在的 rec_id 更新狀態"
+      - "status=applied 且本次驗證確認改善的 → 移至 applied_history"
+
+# ── 改善建議範例 ─────────────────────────────────────────
+example_recommendations:
+  - rec_id: REC_001
+    priority: high
+    target_module: 2_learner_handout_generator
+    target_element: "handout_schema.hands_on_task.step_by_step"
+    problem_description: "3/4 個模組的動手實作缺少步驟說明，驗證 C05 連續失敗"
+    suggested_fix: >
+      在 handout_template.md 的「動手實作」段落加入提示：
+      「步驟：（請列出 3-5 個編號步驟）」，
+      並在 quality_rules 中將 step_by_step 列為 required。
+    expected_impact: "C05 驗證通過率從 25% 提升至 90%+"
+    status: pending
+
+  - rec_id: REC_002
+    priority: medium
+    target_module: 4_gamma_generator
+    target_element: "compression_rules.max_words_per_slide.concept_intro"
+    problem_description: "concept_intro 頁平均字數 52 字，超過 30 字上限"
+    suggested_fix: "將 max_words 上限調整為 45，或在模板中加入『刪至核心』的提示"
+    expected_impact: "投影片文本更符合視覺呈現需求"
+    status: pending
+
+# ── Meta 摘要報告結構 ─────────────────────────────────────
+meta_summary_schema:
+  sections:
+    - id: run_overview
+      content:
+        - run_date: datetime
+        - course_title: string
+        - total_files_generated: integer
+        - verification_result: "PASSED | FAILED ({critical_count} critical)"
+        - issues_total: integer
+        - issues_resolved: integer
+
+    - id: pattern_analysis
+      content:
+        - recurring_issues: list[{pattern, frequency, modules}]
+        - top_3_improvement_areas: list[string]
+
+    - id: performance_summary
+      content:
+        - slowest_module: string
+        - average_step_time: string
+        - total_pipeline_time: string
+
+    - id: recommendations_summary
+      content:
+        - new_recs_count: integer
+        - high_priority_recs: list[rec_id]
+        - applied_recs_this_round: list[rec_id]
+
+    - id: next_run_suggestions
+      content:
+        - focus_items: list[string]  # 下次執行前應先處理的 3 件事
+
+# ── 閉環機制 ──────────────────────────────────────────────
+feedback_loop:
+  description: >
+    Meta Loop 的「閉環」體現在：改善建議 → 修改對應模組 YAML →
+    下一次 /build 時改善建議的效果得到驗證。
+  loop_back_to:
+    - module: 1_project_engine
+      how: "outline schema 優化建議"
+    - module: 2_learner_handout_generator
+      how: "handout template 補強、quality_rules 更新"
+    - module: 6_verifier_auto_checker
+      how: "新增驗證規則或調整嚴重程度"
+  human_in_loop:
+    required: true
+    description: >
+      改善建議需人工審閱確認後，手動更新對應模組 YAML。
+      系統不自動修改其他模組（避免意外覆蓋）。
+
+# ── 輸出 ──────────────────────────────────────────────────
+outputs:
+  - type: improvement_queue
+    path: artifacts/_queues/improvement.yaml
+    description: "合併後的改善待辦清單（含歷史紀錄）"
+
+  - type: meta_summary
+    path: "artifacts/_reports/meta_{date}.md"
+    description: "本次執行的完整 Meta 分析報告"
+
+  - type: applied_history
+    path: artifacts/_queues/applied_history.yaml
+    description: "已確認改善的歷史紀錄（長期積累）"

@@ -1,0 +1,164 @@
+# ============================================================
+# samples/sdd_M1_example.yaml
+# 對應 M3_copy_yaml 模組的 App SDD 範例
+# 由 3_sdd_auto_generator 從 M3 的 hands_on_task 自動生成
+# ============================================================
+
+sdd:
+  module_source: M3_copy_yaml
+  generated_by: 3_sdd_auto_generator v1.3
+  generated_at: "2025-04-02"
+
+  # ── 01 概覽 ───────────────────────────────────────────────
+  overview:
+    app_name: "CopyFactory — 品牌文案生成工具"
+    goal: "讓行銷人員輸入產品資料與語氣規格後，一鍵生成多平台格式文案"
+    target_user: >
+      中小品牌行銷人員、內容創作者、電商運營；
+      使用場景：新品上市前需要快速產出多平台文案
+    tech_stack_suggestion:
+      - "純前端方案（HTML + CSS + JS）— 零後端，最快可在課堂完成"
+      - "進階：Claude API + React，支援真正的 AI 生成"
+    estimated_build_time:
+      basic_version: "課堂 60 分鐘"
+      full_version:  "課後 2-3 小時"
+
+  # ── 02 使用者故事 ─────────────────────────────────────────
+  user_stories:
+    - id: US1
+      story: "As a marketer, I want to input my product's key benefit, so that I can generate an IG caption in my brand's tone instantly"
+      priority: must
+    - id: US2
+      story: "As a brand manager, I want to save my tone_of_voice settings, so that I don't have to re-enter them every time"
+      priority: must
+    - id: US3
+      story: "As a content creator, I want to generate 3 format variants at once, so that I can pick the best one"
+      priority: must
+    - id: US4
+      story: "As a team lead, I want to export the generated copy as a Markdown file, so that I can share it with designers"
+      priority: should
+    - id: US5
+      story: "As a power user, I want to save multiple product profiles, so that I can switch between them quickly"
+      priority: could
+
+  # ── 03 功能清單（MoSCoW） ────────────────────────────────
+  feature_list:
+
+    must_have:
+      - feature_id: F01
+        name: "產品資料輸入表單"
+        description: "輸入產品名稱、核心功能（x3）、目標受眾、價值主張"
+        acceptance_criteria:
+          - "所有必填欄位有紅框提示"
+          - "提交前驗證不可為空"
+
+      - feature_id: F02
+        name: "語氣規格選擇器"
+        description: "四個滑桿調整語氣維度（正式↔輕鬆 / 熱情↔冷靜 / 專業↔親切 / 嚴肅↔幽默）"
+        acceptance_criteria:
+          - "四個滑桿各有 1-10 的刻度"
+          - "下方即時顯示語氣描述文字"
+
+      - feature_id: F03
+        name: "文案生成（模擬 / AI）"
+        description: "基於輸入資料生成三種格式：IG 貼文 / 電商標題+描述 / Email 主旨+預覽文"
+        acceptance_criteria:
+          - "點擊『生成』後 2 秒內顯示結果（模擬版）"
+          - "三種格式各自在獨立卡片中呈現"
+          - "每種格式顯示建議字數範圍"
+
+      - feature_id: F04
+        name: "複製到剪貼板"
+        description: "每個文案卡片有獨立複製按鈕"
+        acceptance_criteria:
+          - "點擊後顯示『已複製！』反饋"
+          - "複製內容包含格式標籤（e.g., [IG 貼文]）"
+
+    should_have:
+      - feature_id: F05
+        name: "語氣預設模板"
+        description: "提供 3 個常見語氣預設（活潑品牌 / 專業品牌 / 溫暖品牌）"
+        acceptance_criteria:
+          - "點擊預設後四個滑桿自動調整"
+
+      - feature_id: F06
+        name: "Markdown 匯出"
+        description: "將所有生成文案匯出為 .md 檔案"
+        acceptance_criteria:
+          - "包含產品資料摘要 + 三種格式文案"
+          - "檔名格式：{product_name}_{date}_copy.md"
+
+    could_have:
+      - feature_id: F07
+        name: "本地儲存產品資料"
+        description: "使用 localStorage 儲存最近 5 個產品設定"
+      - feature_id: F08
+        name: "Claude API 真實生成"
+        description: "進階版：接入 Claude API 進行真正的 AI 文案生成"
+
+  # ── 04 資料模型 ───────────────────────────────────────────
+  data_model:
+    entities:
+      - entity: ProductProfile
+        attributes:
+          - { name: product_name,    type: string,  required: true }
+          - { name: features,        type: list,    required: true,  max_items: 5 }
+          - { name: target_audience, type: string,  required: true }
+          - { name: value_prop,      type: string,  required: true,  max_chars: 50 }
+          - { name: created_at,      type: datetime, required: false }
+
+      - entity: ToneOfVoice
+        attributes:
+          - { name: formal_casual,      type: integer, range: "1-10" }
+          - { name: warm_cool,          type: integer, range: "1-10" }
+          - { name: expert_friendly,    type: integer, range: "1-10" }
+          - { name: serious_playful,    type: integer, range: "1-10" }
+          - { name: do_phrases,         type: list,    max_items: 3 }
+          - { name: dont_phrases,       type: list,    max_items: 3 }
+
+      - entity: CopyOutput
+        attributes:
+          - { name: format,       type: string,  values: [ig_post, ecommerce, email] }
+          - { name: content,      type: string }
+          - { name: char_count,   type: integer }
+          - { name: generated_at, type: datetime }
+
+  # ── 05 UI 畫面描述 ────────────────────────────────────────
+  ui_wireframe_description:
+    screens:
+      - screen_name: "主畫面（單頁應用）"
+        layout_description: >
+          左欄（40%）：輸入區域（產品資料表單 + 語氣滑桿）；
+          右欄（60%）：輸出區域（三張文案卡片縱向排列）；
+          頂部：品牌名稱 + 生成按鈕（大型主要 CTA）
+        key_interactions:
+          - "填寫表單欄位 → 右欄出現『待生成』佔位提示"
+          - "點擊語氣滑桿 → 下方語氣描述文字即時更新"
+          - "點擊『生成文案』→ 右欄卡片顯示 loading → 顯示結果"
+          - "點擊文案卡片上的複製圖示 → 複製成功 Toast 提示"
+          - "點擊『匯出 MD』→ 自動下載 Markdown 檔案"
+        notes: "RWD 設計：手機版改為上下排列（輸入在上，輸出在下）"
+
+  # ── 06 完成標準 ───────────────────────────────────────────
+  success_criteria:
+    - id: SC1
+      description: "可在瀏覽器打開 index.html 並完整使用所有 must 功能"
+      how_to_verify: "打開 index.html，輸入任意產品資料後點擊生成，三種格式文案出現"
+    - id: SC2
+      description: "語氣滑桿影響生成文案的風格（即使是模擬版也要有差異）"
+      how_to_verify: "將語氣設為最輕鬆 vs 最正式，生成結果應有明顯風格差異"
+    - id: SC3
+      description: "複製功能正常運作"
+      how_to_verify: "點擊複製按鈕後，貼到文字編輯器，內容完整"
+    - id: SC4
+      description: "對應課程帶走成果：copy_generator.yaml + 三份可用文案"
+      how_to_verify: "展示給旁邊同學看，他們能理解文案是哪個產品的、哪個平台用的"
+
+  # ── 07 不在範圍內 ─────────────────────────────────────────
+  out_of_scope:
+    - "使用者帳號系統與雲端儲存（課堂版使用 localStorage 即可）"
+    - "多語言支援（此版本只需繁體中文）"
+    - "圖片生成（文案只需文字輸出）"
+    - "A/B 測試功能"
+    - "團隊協作功能"
+    - "排程發文整合（Hootsuite / Buffer 等）"

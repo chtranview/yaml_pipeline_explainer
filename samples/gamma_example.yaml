@@ -1,0 +1,171 @@
+# ============================================================
+# samples/gamma_example.yaml
+# 對應 M3_copy_yaml 的 Gamma Deck 投影片文本範例
+# 由 4_gamma_generator 自動生成，可直接匯入 Gamma.app
+# ============================================================
+
+deck_meta:
+  module_source: M3_copy_yaml
+  generated_by: 4_gamma_generator v1.2
+  generated_at: "2025-04-02"
+  total_slides: 9
+  target_tool: Gamma.app
+  import_instruction: >
+    至 Gamma.app → 新增簡報 → 匯入 → 貼上 Markdown
+    系統將自動識別 # 為頁標題，--- 為換頁
+
+# ── 可直接匯入 Gamma 的 Markdown 內容 ───────────────────
+# 使用方式：複製下方 deck_markdown 的內容，貼入 Gamma 匯入框
+
+deck_markdown: |
+
+  # 文案 YAML 模組實戰
+  ## 打造你的文案工廠
+
+  商品力 × AI 文案策略 · Day 1 · Module 3
+
+  <!-- speaker_note: 簡短說明本模組承接 M1 的商品力 + M2 的語氣規格，現在要把兩者「裝進機器」。預計 90 分鐘，60 分鐘實作。 -->
+
+  ---
+
+  # 本模組目標
+
+  - 設計可重複執行的文案生成 YAML 模組
+  - 將商品力資料與語氣規格注入模組
+  - 一鍵生成 3 種格式的文案
+
+  <!-- speaker_note: 快速帶過，不用逐條解釋。讓學員先有整體期待。 -->
+
+  ---
+
+  # 文案模組化
+
+  **文案模具**
+
+  換不同材料（產品資料）
+  壓出不同形狀（文案格式）
+
+  <!-- speaker_note: 這個比喻很有用。強調：你只需要做一次模具，之後每個產品都能用。跟每次從頭寫文案對比一下。 -->
+
+  ---
+
+  # 單次生成 vs 模組系統
+
+  | 單次生成 | 模組系統 |
+  |---------|---------|
+  | 每次重新想 | 一次定義，重複執行 |
+  | 品質不穩 | 規格鎖定，品質可控 |
+  | 難以交接 | 可共用、可版本管理 |
+
+  <!-- speaker_note: 問一下學員：你現在的文案流程比較像哪一邊？ -->
+
+  ---
+
+  # copy_generator.yaml 結構
+
+  ```yaml
+  module_id: copy_generator
+  inputs:
+    product_info: ...   ← 來自 M1
+    tone_of_voice: ...  ← 來自 M2
+  output_variants:
+    - ig_post
+    - ecommerce
+    - email
+  ```
+
+  <!-- speaker_note: 這是今天要建的東西。讓學員看到「輸入→處理→輸出」三塊。 -->
+
+  ---
+
+  # 🛠 動手實作
+
+  **建立你的 copy_generator.yaml**
+
+  ⏱ 50 分鐘
+
+  1. 建立 YAML，填入 product_info
+  2. 引用 M2 的 tone_of_voice.yaml
+  3. 定義三個 output_variants
+  4. 貼入 ChatGPT，執行 /generate
+  5. 評估品質，調整後重新執行
+
+  <!-- speaker_note: 巡場時注意 Step 3 容易卡關，output_variants 的 format 格式可以示範一次。 -->
+
+  ---
+
+  # 完成標準
+
+  ✅ YAML 結構完整（product / tone / variants）
+
+  ✅ 成功生成 IG、電商、Email 各一份
+
+  ✅ 三份文案語氣一致
+
+  <!-- speaker_note: 提醒學員：不需要完美，能跑起來就算完成。品質之後可以迭代。 -->
+
+  ---
+
+  # ✦ 帶走
+
+  **copy_generator.yaml**
+  可直接複用於下一個產品
+
+  **三份可用文案初稿**
+  IG 貼文 / 電商標題 / Email 主旨
+
+  <!-- speaker_note: 強調：這個 YAML 是你今天最重要的帶走物。下次只要換 product_info 就能重新生成。 -->
+
+  ---
+
+  # 想一想
+
+  哪個輸出格式品質最差？
+
+  你會怎麼修改 YAML 來改善？
+
+  <!-- speaker_note: 留 3 分鐘讓學員兩兩討論，或直接在群組分享截圖。這是進入 M4 整合前的反思暖身。 -->
+
+# ── 投影片摘要（供 verifier 使用） ──────────────────────
+slide_manifest:
+  - slide: 1
+    type: title_slide
+    title: "文案 YAML 模組實戰"
+    word_count: 12
+  - slide: 2
+    type: agenda
+    title: "本模組目標"
+    word_count: 28
+  - slide: 3
+    type: concept_intro
+    title: "文案模組化"
+    word_count: 22
+  - slide: 4
+    type: comparison
+    title: "單次生成 vs 模組系統"
+    word_count: 32
+  - slide: 5
+    type: concept_intro
+    title: "copy_generator.yaml 結構"
+    word_count: 18
+  - slide: 6
+    type: hands_on
+    title: "動手實作"
+    word_count: 55
+  - slide: 7
+    type: success_criteria
+    title: "完成標準"
+    word_count: 20
+  - slide: 8
+    type: takeaway
+    title: "帶走"
+    word_count: 18
+  - slide: 9
+    type: reflection
+    title: "想一想"
+    word_count: 16
+
+  total_word_count: 221
+  avg_words_per_slide: 24.6
+  max_words_per_slide: 55     # slide 6 hands_on，在上限 60 內 ✓
+  within_limits: true

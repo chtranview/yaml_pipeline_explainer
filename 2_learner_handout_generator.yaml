@@ -1,0 +1,148 @@
+# ============================================================
+# 2_learner_handout_generator.yaml
+# 學員講義生成器
+# 觸發：/handout 或被 0_build_pipeline 呼叫
+# ============================================================
+
+module_id: learner_handout_generator
+version: "2.1"
+trigger: "/handout"
+description: >
+  讀取 outline.yaml 中的每個模組定義，
+  迴圈生成對應的完整學員講義（MD 格式）。
+  每份講義含學習目標、核心概念、實作任務、
+  帶走成果與反思問題，格式統一便於品質驗證。
+
+# ── 依賴關係 ──────────────────────────────────────────────
+depends_on:
+  module: 1_project_engine
+  reads: artifacts/handouts/outline.yaml
+  required: true
+  error_if_missing: "outline.yaml 不存在，請先執行 /outline"
+
+# ── 選擇性輸入 ────────────────────────────────────────────
+optional_inputs:
+  - field: target_module_id
+    type: string
+    description: "只生成指定模組的講義（留空則生成全部）"
+    example: "M2_skill_design"
+
+  - field: handout_style
+    type: string
+    default: workshop
+    options:
+      workshop:  "動手做為主，說明精簡"
+      lecture:   "理論為主，說明詳細"
+      blended:   "理論+實作各半"
+
+  - field: include_instructor_notes
+    type: boolean
+    default: false
+    description: "是否在講義中加入教師備注欄"
+
+# ── 核心執行邏輯 ──────────────────────────────────────────
+execution:
+  mode: loop
+  loop_over: outline.yaml → course.modules
+  loop_variable: current_module
+
+  per_iteration:
+    - action: generate_handout
+      template: prompts/handout_template.md
+      inject_variables:
+        - current_module.title
+        - current_module.learning_objectives
+        - current_module.key_concepts
+        - current_module.hands_on_task
+        - current_module.takeaway
+        - current_module.duration_minutes
+        - current_module.difficulty
+      output_path: "artifacts/handouts/{current_module.module_id}.md"
+
+    - action: generate_handout_yaml
+      description: 同時輸出機器可讀的 YAML 版本
+      output_path: "artifacts/handouts/{current_module.module_id}_meta.yaml"
+
+# ── 講義結構規範 ──────────────────────────────────────────
+handout_schema:
+  sections:
+    - id: header
+      required: true
+      content:
+        - 模組標題（H1）
+        - 所屬天次與順序
+        - 預計時長
+        - 難度標示（⬜ 基礎 / 🔶 中階 / 🔴 進階）
+
+    - id: learning_objectives
+      required: true
+      format: "bullet list，每條以動詞開頭"
+      max_items: 3
+      example:
+        - "能夠設計一個具備 trigger / instruction / output 的 Skill"
+        - "學會將 YAML 模組移植為 Claude SKILL.md 格式"
+
+    - id: key_concepts
+      required: true
+      format: "每個概念含名稱 + 一句話定義 + 一個比喻"
+      max_concepts: 5
+
+    - id: concept_map
+      required: false
+      format: "Mermaid 或文字版概念關係圖"
+
+    - id: hands_on_task
+      required: true
+      subsections:
+        - task_description:   "任務說明（做什麼）"
+        - success_criteria:   "完成標準（怎樣算完成）"
+        - step_by_step:       "步驟分解（3-7 步）"
+        - tools_needed:       "需要的工具或資源"
+        - time_estimate:      "預計時長"
+
+    - id: takeaway
+      required: true
+      format: "一段話 + 帶走物清單（1-3 項具體產出）"
+
+    - id: reflection_questions
+      required: true
+      count: 3
+      format: "開放式問題，引導學員思考應用場景"
+
+    - id: resources
+      required: false
+      includes:
+        - further_reading
+        - tools_links
+        - sample_files
+
+    - id: instructor_notes
+      required: false
+      condition: "include_instructor_notes == true"
+      content:
+        - 常見卡關點
+        - 補充說明建議
+        - 時間調整提示
+
+# ── 輸出品質規則 ──────────────────────────────────────────
+quality_rules:
+  - rule: no_filler_phrases
+    description: "禁止使用『在這個模組中我們將會...』等填充句"
+  - rule: concrete_examples_required
+    description: "每個概念至少附一個具體例子"
+  - rule: max_words_per_section
+    limits:
+      key_concepts: 200
+      hands_on_task: 400
+      takeaway: 100
+  - rule: chinese_traditional_only
+    description: "全文使用繁體中文，專有名詞保留英文原文"
+
+# ── 輸出路徑 ──────────────────────────────────────────────
+outputs:
+  - type: markdown
+    path: "artifacts/handouts/{module_id}.md"
+    encoding: UTF-8
+  - type: yaml_meta
+    path: "artifacts/handouts/{module_id}_meta.yaml"
+    includes: [module_id, title, word_count, sections_status, generated_at]

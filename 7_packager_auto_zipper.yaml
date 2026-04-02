@@ -1,0 +1,167 @@
+# ============================================================
+# 7_packager_auto_zipper.yaml
+# 模組成果打包 ZIP 交付
+# 觸發：/pack 或被 0_build_pipeline 第六步呼叫
+# ============================================================
+
+module_id: packager_auto_zipper
+version: "1.2"
+trigger: "/pack"
+description: >
+  驗證通過後，依照交付規格收集所有產物、
+  排除內部檔案，生成帶有版本日期命名的 ZIP 交付包。
+  在 ChatGPT 環境中輸出「打包清單」；
+  實際壓縮需透過本地腳本或 MCP Filesystem 工具完成。
+
+# ── 依賴關係 ──────────────────────────────────────────────
+depends_on:
+  - module: 6_verifier_auto_checker
+    reads: "artifacts/_reports/.verify_passed"
+    required: true
+    error_if_missing: >
+      驗證尚未通過或尚未執行，請先執行 /verify。
+      若驗證有 critical 問題尚未修復，不允許打包。
+
+# ── 打包規則 ──────────────────────────────────────────────
+packaging_rules:
+
+  include:
+    - pattern: "artifacts/handouts/*.md"
+      rename_to: "handouts/"
+      description: "所有學員講義"
+
+    - pattern: "artifacts/handouts/outline.yaml"
+      rename_to: "handouts/outline.yaml"
+      description: "課程大綱（供學員參考系統結構）"
+
+    - pattern: "artifacts/sdd/*.yaml"
+      rename_to: "sdd/"
+      description: "App SDD 規格文件"
+      condition: "sdd/ 目錄非空"
+
+    - pattern: "artifacts/sdd/*_sdd_brief.md"
+      rename_to: "sdd/"
+      description: "SDD 一頁摘要版"
+
+    - pattern: "artifacts/gamma/*_deck.md"
+      rename_to: "slides/"
+      description: "Gamma 投影片文本"
+      condition: "gamma/ 目錄非空"
+
+    - pattern: "artifacts/_reports/verify.md"
+      rename_to: "_meta/verify_report.md"
+      description: "品質驗證報告（供參考）"
+
+  exclude:
+    - "artifacts/_logs/**"       # 內部執行紀錄，不交付
+    - "artifacts/_issues/**"     # 錯誤清單，不交付
+    - "artifacts/_queues/**"     # Meta Loop 待辦，不交付
+    - "artifacts/_reports/.verify_passed"  # 內部信號檔
+    - "artifacts/handouts/*_meta.yaml"     # 機器可讀 meta，不交付
+    - "**/.DS_Store"             # macOS 隱藏檔
+    - "**/Thumbs.db"             # Windows 隱藏檔
+
+# ── 內部資料夾結構（ZIP 內） ──────────────────────────────
+bundle_internal_structure: |
+  {course_topic}_{date}/
+  ├── handouts/
+  │   ├── outline.yaml          ← 課程大綱
+  │   ├── M1_{title}.md         ← 模組 1 講義
+  │   ├── M2_{title}.md         ← 模組 2 講義
+  │   └── ...
+  ├── sdd/
+  │   ├── M2_{title}_sdd.yaml   ← App 規格
+  │   └── M2_{title}_sdd_brief.md
+  ├── slides/
+  │   ├── M1_{title}_deck.md    ← Gamma 投影片文本
+  │   └── ...
+  └── _meta/
+      ├── verify_report.md      ← 品質報告
+      └── bundle_manifest.yaml  ← 打包清單（自動生成）
+
+# ── Bundle Manifest 規格 ─────────────────────────────────
+bundle_manifest_schema:
+  fields:
+    bundle_name: string
+    generated_at: datetime
+    course_title: string
+    course_topic: string
+    duration_days: integer
+    total_modules: integer
+    files:
+      - path: string
+        type: string      # handout | sdd | slide | meta
+        module_id: string
+        size_estimate: string
+    verification_status: string    # PASSED
+    packaged_by: string            # module version
+  path: "_meta/bundle_manifest.yaml"
+
+# ── 命名規則 ──────────────────────────────────────────────
+naming:
+  bundle_name: "{course_topic_slug}_{YYYY-MM-DD}.zip"
+  course_topic_slug:
+    description: "將課程名稱轉為安全檔名"
+    rules:
+      - "空格替換為底線"
+      - "移除特殊字元（：、×、/）"
+      - "最長 40 個字元"
+    example: "AI系統設計工作坊_2025-04-02.zip"
+
+  versioning:
+    description: "若同日生成多次，自動加版本號"
+    pattern: "{course_topic_slug}_{date}_v{n}.zip"
+    example: "AI系統設計工作坊_2025-04-02_v2.zip"
+
+# ── ChatGPT 行為（模擬打包） ─────────────────────────────
+chatgpt_simulation:
+  description: >
+    在 ChatGPT 環境中，此模組無法實際執行 zip 壓縮。
+    GPT 應輸出以下內容作為替代：
+  outputs:
+    - "完整的打包清單（列出所有應包含的檔案）"
+    - "Bundle Manifest YAML 草稿"
+    - "ZIP 命名建議"
+    - "實際打包的操作指示（複製下列指令在終端執行）"
+  terminal_command_template: |
+    # 在 ExpertAI_Course_Engine 目錄下執行：
+    cd artifacts
+    mkdir -p bundle_temp/{course_topic_slug}_{date}
+    cp -r handouts/ sdd/ gamma/ bundle_temp/{course_topic_slug}_{date}/
+    cp _reports/verify.md bundle_temp/{course_topic_slug}_{date}/_meta/
+    cd bundle_temp
+    zip -r "../bundles/{bundle_name}" {course_topic_slug}_{date}/
+    echo "✓ 打包完成：bundles/{bundle_name}"
+
+# ── MCP 整合（進階） ─────────────────────────────────────
+mcp_integration:
+  description: "若配置了 MCP Filesystem Server，可直接執行壓縮"
+  tool_calls:
+    - tool: filesystem/create_directory
+      params: { path: "artifacts/bundles" }
+    - tool: filesystem/compress
+      params:
+        source: "artifacts/"
+        include: "{include_patterns}"
+        exclude: "{exclude_patterns}"
+        output: "artifacts/bundles/{bundle_name}"
+
+# ── 輸出 ──────────────────────────────────────────────────
+outputs:
+  - type: zip_bundle
+    path: "artifacts/bundles/{bundle_name}"
+    description: "學員交付包"
+
+  - type: bundle_manifest
+    path: "artifacts/bundles/{bundle_name_stem}_manifest.yaml"
+
+  - type: pack_log
+    path: "artifacts/_logs/{date}_pack.log"
+    fields: [timestamp, bundle_name, file_count, total_size, status]
+
+  - type: trigger_signal
+    description: "打包完成後觸發 5_notifier"
+    signal: "BUNDLE_READY"
+    payload:
+      bundle_path: "{bundle_path}"
+      bundle_name: "{bundle_name}"

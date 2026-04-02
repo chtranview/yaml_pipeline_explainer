@@ -1,0 +1,177 @@
+# ============================================================
+# 8_bridge_connector.yaml
+# 外部資料橋接（Sheets / Airtable / Notion）
+# 觸發：/bridge 或在 pipeline 需要外部資料時自動呼叫
+# ============================================================
+
+module_id: bridge_connector
+version: "1.0"
+trigger: "/bridge"
+description: >
+  系統的「對外資料介面」。負責從外部工具讀取資料
+  （如學員名單）注入到 pipeline，以及將執行結果
+  寫回外部系統（如 Notion 課程紀錄、Airtable 追蹤）。
+  憑證全部透過環境變數注入，不寫死於 YAML。
+
+# ── 安全設定 ──────────────────────────────────────────────
+security:
+  auth_method: env_vars
+  required_env_vars:
+    - GOOGLE_SHEETS_API_KEY
+    - AIRTABLE_API_KEY
+    - AIRTABLE_BASE_ID
+    - NOTION_API_TOKEN
+    - NOTION_PAGE_ID
+    - LINE_WEBHOOK_URL       # 供 5_notifier 使用
+  note: >
+    所有 API 金鑰必須設定為環境變數，
+    絕對不可硬寫在任何 YAML 或程式碼中。
+    建議使用 .env 檔案 + python-dotenv / dotenv-cli 管理。
+
+# ── 連線設定 ──────────────────────────────────────────────
+connections:
+
+  - id: google_sheets
+    type: read
+    enabled: true
+    description: "從 Google Sheets 讀取學員名單"
+    source:
+      spreadsheet_id: "{{env.GOOGLE_SHEETS_ID}}"
+      sheet_name: "learner_roster"
+      range: "A2:E100"          # A:姓名 B:Email C:LINE_ID D:程度 E:備注
+    data_schema:
+      learner:
+        name: string
+        email: string
+        line_id: string         # 選填
+        level: string           # beginner | intermediate | advanced
+        notes: string           # 選填
+    maps_to: "learner_list"     # 注入到 5_notifier 使用的變數
+    refresh_interval: "每次執行 pipeline 時重新讀取"
+    on_unavailable:
+      action: use_empty_list
+      message: "Google Sheets 連線失敗，通知將使用通用版本"
+
+  - id: airtable_course_log
+    type: write
+    enabled: true
+    description: "將每次 pipeline 執行摘要寫入 Airtable 追蹤表"
+    target:
+      base_id: "{{env.AIRTABLE_BASE_ID}}"
+      table_name: "course_runs"
+    writes:
+      record:
+        course_title:     "{outline.course.title}"
+        run_date:         "{run_date}"
+        modules_count:    "{outline.course.total_modules}"
+        verification:     "{verify_result}"
+        bundle_name:      "{bundle_name}"
+        learner_count:    "{learner_list.count}"
+        duration_days:    "{outline.course.duration_days}"
+        issues_count:     "{issues_count}"
+        status:           "completed | failed"
+    trigger: "pipeline 完成後自動寫入"
+    on_failure:
+      action: log_and_skip
+      message: "Airtable 寫入失敗，記錄至 _logs/"
+
+  - id: notion_course_page
+    type: write
+    enabled: true
+    description: "將課程報告同步至 Notion 課程頁面"
+    target:
+      page_id: "{{env.NOTION_PAGE_ID}}"
+      block_type: "append_blocks"
+    writes:
+      - source: "artifacts/_reports/verify.md"
+        as: notion_callout_block
+        title: "📋 最新驗證報告 ({run_date})"
+      - source: "artifacts/handouts/outline.yaml"
+        as: notion_table
+        title: "📚 課程模組一覽"
+    trigger: "7_packager 完成後自動同步"
+    on_failure:
+      action: log_and_skip
+
+  - id: airtable_learner_tracker
+    type: readwrite
+    enabled: false              # 預設關閉，需要時啟用
+    description: "學員學習進度追蹤（雙向同步）"
+    reads:
+      table: "learner_progress"
+      filter: "course_id = {current_course_id}"
+    writes:
+      table: "learner_progress"
+      updates:
+        - field: "materials_sent"
+          value: true
+        - field: "sent_at"
+          value: "{timestamp}"
+
+  - id: google_drive
+    type: write
+    enabled: false              # 選用：自動上傳交付包至 Google Drive
+    description: "上傳 ZIP 包至 Google Drive，生成分享連結"
+    target:
+      folder_id: "{{env.GDRIVE_FOLDER_ID}}"
+    writes:
+      file: "artifacts/bundles/{bundle_name}"
+    returns:
+      download_link: "供 5_notifier 使用的公開下載連結"
+    on_success:
+      inject_to: "5_notifier → message_content.bundle_download_link"
+
+# ── 執行模式 ──────────────────────────────────────────────
+execution_modes:
+  auto:
+    description: "被 pipeline 自動呼叫時，只執行啟用的連線"
+    triggered_by: [0_build_pipeline]
+
+  manual:
+    description: "使用者執行 /bridge 時，可選擇指定連線"
+    usage: "/bridge [connection_id]"
+    examples:
+      - "/bridge google_sheets"       # 只重新整理學員名單
+      - "/bridge notion_course_page"  # 只同步至 Notion
+      - "/bridge all"                 # 執行所有啟用的連線
+
+# ── 資料注入對照 ──────────────────────────────────────────
+data_injection_map:
+  "learner_list":
+    source: google_sheets
+    consumed_by:
+      - "5_notifier → channels[].to"
+      - "5_notifier → message_content.personalized_greeting"
+  "bundle_download_link":
+    source: google_drive（若啟用）
+    fallback: "手動填入"
+    consumed_by:
+      - "5_notifier → message_content.bundle_download_link"
+
+# ── ChatGPT 行為 ─────────────────────────────────────────
+chatgpt_simulation:
+  description: >
+    在 ChatGPT 環境中，此模組無法實際呼叫外部 API。
+    GPT 應輸出：
+  outputs:
+    - "模擬的學員名單結構（供測試用）"
+    - "Airtable 記錄草稿（供人工填入）"
+    - "Notion 更新步驟說明"
+    - "環境變數設定指南（.env 範本）"
+  env_template: |
+    # .env 範本（複製後填入真實值）
+    GOOGLE_SHEETS_ID=your_sheet_id
+    AIRTABLE_API_KEY=your_airtable_key
+    AIRTABLE_BASE_ID=your_base_id
+    NOTION_API_TOKEN=your_notion_token
+    NOTION_PAGE_ID=your_page_id
+    GDRIVE_FOLDER_ID=your_drive_folder_id
+    LINE_WEBHOOK_URL=https://notify-api.line.me/api/notify
+
+# ── 輸出 ──────────────────────────────────────────────────
+outputs:
+  - type: injected_data
+    description: "注入到其他模組的資料（learner_list 等）"
+  - type: bridge_log
+    path: "artifacts/_logs/{date}_bridge.log"
+    fields: [timestamp, connection_id, direction, records_processed, status, error_if_any]

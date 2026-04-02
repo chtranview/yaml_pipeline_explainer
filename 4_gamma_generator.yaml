@@ -1,0 +1,177 @@
+# ============================================================
+# 4_gamma_generator.yaml
+# 投影片文字生成器（Gamma 用）
+# 觸發：/deck 或被 0_build_pipeline 呼叫
+# ============================================================
+
+module_id: gamma_generator
+version: "1.2"
+trigger: "/deck"
+description: >
+  從講義 MD 檔中提取重點，壓縮生成適合
+  Gamma.app 的投影片文本結構。
+  輸出格式符合 Gamma 的 markdown 匯入規格，
+  確保視覺簡潔、資訊密度適中。
+
+# ── 依賴關係 ──────────────────────────────────────────────
+depends_on:
+  - module: 2_learner_handout_generator
+    reads: "artifacts/handouts/*.md"
+    required: true
+    error_if_missing: "講義尚未生成，請先執行 /handout"
+
+# ── 選擇性參數 ────────────────────────────────────────────
+optional_inputs:
+  - field: target_module_id
+    type: string
+    description: "只生成指定模組的投影片（留空則生成全部）"
+
+  - field: slide_style
+    type: string
+    default: workshop
+    options:
+      workshop:  "動手做導向，大字少文字"
+      keynote:   "演講導向，完整論述"
+      reference: "參考資料導向，密集資訊"
+
+  - field: include_speaker_notes
+    type: boolean
+    default: true
+    description: "是否加入講者備注"
+
+  - field: language
+    type: string
+    default: zh-TW
+    options: [zh-TW, zh-CN, en]
+
+# ── 執行邏輯 ──────────────────────────────────────────────
+execution:
+  mode: loop
+  loop_over: "artifacts/handouts/*.md"
+  loop_variable: current_handout
+
+  per_iteration:
+    - action: parse_handout
+      extracts:
+        - title           → slide: title_slide
+        - learning_objectives → slide: agenda
+        - key_concepts    → slides: concept_slides（每概念一頁）
+        - hands_on_task   → slide: activity_slide
+        - takeaway        → slide: takeaway_slide
+
+    - action: compress_text
+      rules:
+        - "每頁正文不超過 {max_words_per_slide} 字"
+        - "優先保留動詞與名詞，刪除連接詞"
+        - "長段落拆解為 3 個以下 bullet points"
+
+    - action: write_gamma_format
+      output_path: "artifacts/gamma/{module_id}_deck.md"
+
+# ── 投影片結構規範 ────────────────────────────────────────
+slide_structure:
+  deck_opening:
+    - slide_type: title_slide
+      content:
+        heading: "{module.title}"
+        subheading: "{course.title} · Day {day} · Module {order}"
+        note: "（講者備注：簡短自我介紹此模組目標）"
+
+    - slide_type: agenda
+      content:
+        heading: "本模組目標"
+        bullets: "{learning_objectives}"  # 最多 3 條
+        note: "帶著學員快速瀏覽，不需逐條解釋"
+
+  concept_slides:
+    - slide_type: concept_intro
+      trigger: "每個 key_concept 生成一頁"
+      content:
+        heading: "{concept.name}"
+        body: "{concept.one_line_definition}"
+        visual_hint: "{concept.analogy}"  # 建議放圖的地方
+      word_limit: 30
+      note: "講者備注：{concept.extended_explanation}"
+
+    - slide_type: comparison
+      trigger: "當概念涉及對比（A vs B）時自動生成"
+      content:
+        layout: two_column
+        left: "{option_a}"
+        right: "{option_b}"
+
+  activity_slide:
+    - slide_type: hands_on
+      content:
+        heading: "🛠 動手實作"
+        task: "{hands_on_task.description}"
+        time: "⏱ {time_estimate}"
+        steps: "{step_by_step}"  # 最多 5 步
+      word_limit: 60
+
+  deck_closing:
+    - slide_type: takeaway
+      content:
+        heading: "✦ 帶走"
+        items: "{takeaway.items}"
+      format: "大字排版，強調帶走物"
+
+    - slide_type: reflection
+      content:
+        heading: "想一想"
+        question: "{reflection_questions[0]}"  # 只取第一題用於討論
+      note: "留 3-5 分鐘讓學員討論或寫下答案"
+
+# ── 文字壓縮規則 ──────────────────────────────────────────
+compression_rules:
+  max_words_per_slide:
+    title_slide: 15
+    agenda: 30
+    concept_intro: 30
+    hands_on: 60
+    takeaway: 25
+    reflection: 20
+
+  forbidden_phrases:
+    - "在這個部分我們將會..."
+    - "接下來讓我們來看看..."
+    - "如大家所知..."
+    - "總的來說"
+    # 說明：投影片文字必須直接、有力，無填充句
+
+  style_rules:
+    - "句子以名詞或動詞起頭，不用主詞 I/we"
+    - "列點優先使用動詞片語，不用完整句"
+    - "數字優先使用阿拉伯數字"
+    - "英文專有名詞保留原文，首次出現加括號中文"
+
+# ── Gamma 匯入格式規範 ────────────────────────────────────
+gamma_format:
+  description: "Gamma.app 支援 Markdown 匯入，以 --- 分隔投影片"
+  template: |
+    # {slide_title}
+
+    {slide_content}
+
+    <!-- speaker_note: {speaker_note} -->
+
+    ---
+
+    # {next_slide_title}
+    ...
+
+  notes:
+    - "使用 # 作為每頁標題（Gamma 會自動識別）"
+    - "--- 為換頁分隔符"
+    - "<!-- speaker_note: ... --> 為講者備注語法"
+    - "支援 **粗體**、*斜體*、`code` 等基本 Markdown"
+
+# ── 輸出 ──────────────────────────────────────────────────
+outputs:
+  - type: markdown
+    path: "artifacts/gamma/{module_id}_deck.md"
+    encoding: UTF-8
+    description: "可直接匯入 Gamma.app 的投影片文本"
+  - type: slide_count_report
+    path: "artifacts/gamma/{module_id}_deck_meta.yaml"
+    fields: [module_id, total_slides, word_count_per_slide, generated_at]

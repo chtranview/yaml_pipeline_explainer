@@ -1,0 +1,134 @@
+# ============================================================
+# 3_sdd_auto_generator.yaml
+# App SDD 自動化生成
+# 觸發：/sdd 或被 0_build_pipeline 呼叫
+# ============================================================
+
+module_id: sdd_auto_generator
+version: "1.3"
+trigger: "/sdd"
+description: >
+  從講義中的 hands_on_task 欄位提取實作任務描述，
+  自動轉化為結構化的 Software Design Document（SDD）。
+  讓學員拿到的不只是任務說明，而是一份可直接開發的 App 規格。
+
+# ── 依賴關係 ──────────────────────────────────────────────
+depends_on:
+  - module: 1_project_engine
+    reads: artifacts/handouts/outline.yaml
+    required: true
+  - module: 2_learner_handout_generator
+    reads: "artifacts/handouts/*.md"
+    required: false
+    fallback: "若講義尚未生成，從 outline.yaml 直接提取 hands_on_task"
+
+# ── 執行邏輯 ──────────────────────────────────────────────
+execution:
+  mode: loop
+  loop_over: outline.yaml → course.modules
+  filter: "hands_on_task 非空 AND difficulty IN [medium, hard]"
+  # 說明：基礎任務通常不需要完整 SDD，只有中階以上才生成
+
+  per_iteration:
+    - action: extract_task
+      source_field: hands_on_task
+      also_reads:
+        - success_criteria（若存在於講義中）
+        - key_concepts（作為技術背景）
+
+    - action: generate_sdd
+      template: prompts/sdd_template.md
+      output_path: "artifacts/sdd/{module_id}_sdd.yaml"
+
+# ── SDD 規格結構 ──────────────────────────────────────────
+sdd_schema:
+  sections:
+    - id: overview
+      required: true
+      fields:
+        app_name:
+          type: string
+          description: "App 名稱（簡短、具描述性）"
+          example: "SkillBuilder — 個人 AI Skill 設計工具"
+        goal:
+          type: string
+          description: "一句話說明這個 App 解決什麼問題"
+          max_words: 30
+        target_user:
+          type: string
+          description: "主要使用者是誰，使用場景為何"
+        tech_stack_suggestion:
+          type: list
+          description: "建議技術棧（供學員參考，可自行調整）"
+          example: ["HTML/CSS/JS（純前端）", "或 Claude API + React"]
+
+    - id: user_stories
+      required: true
+      format: "As a [user], I want to [action], so that [benefit]"
+      min_stories: 3
+      max_stories: 7
+      example:
+        - "As a course participant, I want to define a Skill's trigger condition, so that I can test it immediately in Claude"
+        - "As a facilitator, I want to export Skills as YAML, so that learners can take them home"
+
+    - id: feature_list
+      required: true
+      structure:
+        - feature_name: string
+          priority: "must | should | could"     # MoSCoW 方法
+          description: string
+          acceptance_criteria: list[string]
+      note: "Must 功能不超過 5 個，聚焦 MVP"
+
+    - id: data_model
+      required: false
+      condition: "App 涉及資料儲存時才填寫"
+      fields:
+        - entity_name: string
+          attributes: list[{name, type, required}]
+          relationships: list[string]
+
+    - id: ui_wireframe_description
+      required: true
+      format: "文字描述每個主要畫面的佈局與互動"
+      screens:
+        - screen_name: string
+          layout_description: string
+          key_interactions: list[string]
+          notes: string
+
+    - id: success_criteria
+      required: true
+      description: "定義『完成』的標準，對應課程帶走成果"
+      format:
+        - criteria_id: string
+          description: string
+          how_to_verify: string
+      example:
+        - criteria_id: SC1
+          description: "使用者能輸入 Skill 名稱與觸發條件並預覽"
+          how_to_verify: "在瀏覽器中打開 index.html，填入欄位後看到預覽"
+
+    - id: out_of_scope
+      required: true
+      description: "明確列出本次不做的功能，避免範圍蔓延"
+      format: list[string]
+
+# ── 生成規則 ──────────────────────────────────────────────
+generation_rules:
+  - rule: mvp_first
+    description: "只規格化 MVP 功能，進階功能列入 out_of_scope"
+  - rule: buildable_in_workshop
+    description: "所有 must 功能必須在課程時間內可完成"
+  - rule: no_backend_required_for_basics
+    description: "基礎版優先使用純前端方案，降低技術門檻"
+  - rule: align_with_takeaway
+    description: "success_criteria 必須對應 outline 中的 takeaway 描述"
+
+# ── 輸出 ──────────────────────────────────────────────────
+outputs:
+  - type: yaml
+    path: "artifacts/sdd/{module_id}_sdd.yaml"
+  - type: markdown_summary
+    path: "artifacts/sdd/{module_id}_sdd_brief.md"
+    description: "一頁式摘要版 SDD，適合課堂快速瀏覽"

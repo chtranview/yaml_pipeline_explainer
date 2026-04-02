@@ -1,0 +1,202 @@
+# ============================================================
+# 6_verifier_auto_checker.yaml
+# 產物品質檢核與修復
+# 觸發：/verify 或被 0_build_pipeline 第五步呼叫
+# ============================================================
+
+module_id: verifier_auto_checker
+version: "2.0"
+trigger: "/verify"
+description: >
+  Pipeline 的品質把關站。掃描 artifacts/ 下的所有產物，
+  對照各模組的輸出規範執行結構驗證與內容驗證。
+  問題記錄至 _issues/，通過驗證後才允許進入打包步驟。
+
+# ── 驗證範圍 ──────────────────────────────────────────────
+scope:
+  reads:
+    - "artifacts/handouts/*.md"
+    - "artifacts/handouts/*.yaml"
+    - "artifacts/sdd/*.yaml"
+    - "artifacts/gamma/*.md"
+  cross_checks:
+    - "outline.yaml 中的模組列表 vs 實際生成的檔案"
+    - "講義的 module_id vs SDD 的 module_id 對應"
+
+# ── 驗證規則集 ────────────────────────────────────────────
+checks:
+
+  # 【結構驗證】—— 檢查所有應生成的檔案是否存在
+  - check_id: C01
+    name: all_modules_have_handout
+    type: structural
+    description: "確認 outline 中每個模組都有對應的講義 MD"
+    rule:
+      for_each: outline.yaml → course.modules
+      assert: "artifacts/handouts/{module_id}.md EXISTS"
+    severity: critical
+    on_fail:
+      action: re_run
+      target: 2_learner_handout_generator
+      with_param: "target_module_id: {missing_module_id}"
+
+  - check_id: C02
+    name: all_modules_have_meta_yaml
+    type: structural
+    description: "確認每份講義都有對應的 meta YAML"
+    severity: warning
+    on_fail:
+      action: flag_to_issues
+
+  # 【必填欄位驗證】—— 檢查講義內容完整性
+  - check_id: C03
+    name: required_sections_present
+    type: content
+    description: "每份講義必須含有以下段落"
+    required_sections:
+      - "## 學習目標"
+      - "## 核心概念"
+      - "## 動手實作"
+      - "## 帶走"
+      - "## 反思問題"
+    severity: critical
+    on_fail:
+      action: flag_to_issues
+      message: "{filename} 缺少段落：{missing_section}"
+
+  - check_id: C04
+    name: learning_objectives_count
+    type: content
+    description: "學習目標數量在 1-3 條之間"
+    rule:
+      section: "## 學習目標"
+      assert: "bullet_count BETWEEN 1 AND 3"
+    severity: warning
+    on_fail:
+      action: flag_to_issues
+      message: "{filename} 學習目標有 {count} 條（建議 1-3 條）"
+
+  - check_id: C05
+    name: hands_on_task_has_steps
+    type: content
+    description: "動手實作段落必須含有步驟說明"
+    rule:
+      section: "## 動手實作"
+      assert: "contains_numbered_list OR contains_bullet_list"
+    severity: critical
+    on_fail:
+      action: flag_to_issues
+      message: "{filename} 動手實作缺少步驟說明"
+
+  - check_id: C06
+    name: takeaway_not_empty
+    type: content
+    description: "帶走段落不可為空"
+    rule:
+      section: "## 帶走"
+      assert: "word_count >= 10"
+    severity: critical
+    on_fail:
+      action: flag_to_issues
+
+  # 【YAML 格式驗證】
+  - check_id: C07
+    name: yaml_schema_valid
+    type: schema
+    description: "所有 YAML 檔案必須符合對應模組的 schema"
+    targets:
+      - file: "artifacts/handouts/outline.yaml"
+        schema: 1_project_engine → output.schema
+      - file: "artifacts/sdd/*.yaml"
+        schema: 3_sdd_auto_generator → sdd_schema
+    severity: critical
+    on_fail:
+      action: auto_fix_or_escalate
+      auto_fix_conditions:
+        - "缺少可推導的可選欄位 → 補填預設值"
+        - "多餘空行 → 自動清除"
+      escalate_conditions:
+        - "必填欄位格式錯誤 → 記錄至 _issues/，不自動修改"
+
+  # 【一致性驗證】
+  - check_id: C08
+    name: module_ids_consistent
+    type: consistency
+    description: "outline.yaml 的 module_id 與所有產物的 module_id 必須一致"
+    rule:
+      collect: "outline.yaml → modules[].module_id"
+      assert_exists_in:
+        - "artifacts/handouts/{module_id}.md"
+        - "artifacts/gamma/{module_id}_deck.md（若 gamma 有啟用）"
+    severity: warning
+    on_fail:
+      action: flag_to_issues
+
+  # 【文字品質驗證】
+  - check_id: C09
+    name: no_placeholder_text
+    type: content
+    description: "確認無未替換的模板佔位符"
+    pattern: "\\{\\{.*?\\}\\}|\\[待填入\\]|TODO|PLACEHOLDER"
+    severity: critical
+    on_fail:
+      action: flag_to_issues
+      message: "{filename} 第 {line_number} 行含有未替換的佔位符：{matched_text}"
+
+  - check_id: C10
+    name: language_consistency
+    type: content
+    description: "確認全文為繁體中文（允許英文專有名詞）"
+    rule:
+      assert: "NOT contains_simplified_chinese"
+    severity: warning
+    on_fail:
+      action: flag_to_issues
+
+# ── 驗證結果分級 ──────────────────────────────────────────
+severity_levels:
+  critical:
+    description: "必須修復，否則阻止進入打包步驟"
+    blocks_packaging: true
+  warning:
+    description: "建議修復，不阻止打包，但記錄至報告"
+    blocks_packaging: false
+  info:
+    description: "提示訊息，不影響流程"
+    blocks_packaging: false
+
+# ── 自動修復能力 ──────────────────────────────────────────
+auto_fix_capabilities:
+  - "補填可推導的選填 YAML 欄位（如 generated_at）"
+  - "清除 YAML 多餘空行"
+  - "標準化 module_id 大小寫格式（M1_xxx → M1_xxx）"
+  - "在缺少的 MD 段落末加入 [需補充] 標記"
+  note: "自動修復後重新執行對應 check，確認修復成功"
+
+# ── 輸出 ──────────────────────────────────────────────────
+outputs:
+  - type: verification_report
+    path: artifacts/_reports/verify.md
+    sections:
+      - summary:          "通過 {passed} / {total} 項，{critical_count} 個 critical 問題"
+      - passed_checks:    "列出所有通過的檢查項目"
+      - failed_checks:    "列出失敗項目、嚴重程度、建議處理方式"
+      - auto_fixed:       "列出已自動修復的項目"
+      - next_steps:       "若有 critical 問題，列出修復優先順序"
+
+  - type: issues_file
+    path: "artifacts/_issues/{date}_issues.md"
+    condition: "有 warning 或 critical 問題時才生成"
+    format: |
+      # {date} 驗證問題清單
+
+      ## Critical（必須修復）
+      - [ ] {issue_description} → {affected_file}:{line}
+
+      ## Warning（建議修復）
+      - [ ] {issue_description} → {affected_file}
+
+  - type: pass_signal
+    description: "所有 critical 通過後，輸出此信號供 7_packager 讀取"
+    signal: "VERIFICATION_PASSED"
+    path: "artifacts/_reports/.verify_passed"

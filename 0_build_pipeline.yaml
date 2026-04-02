@@ -1,0 +1,138 @@
+# ============================================================
+# 0_build_pipeline.yaml
+# 一鍵建置流程 · 總指揮
+# 觸發：使用者輸入 /build
+# ============================================================
+
+module_id: build_pipeline
+version: "1.0"
+trigger: "/build"
+description: >
+  接收課程基本參數後，依序呼叫所有子模組完成
+  從骨架生成 → 講義 → SDD → 投影片 → 驗證 → 打包 → 通知
+  的完整自動化流程。
+
+# ── 輸入參數 ──────────────────────────────────────────────
+inputs:
+  - field: course_topic
+    type: string
+    required: true
+    prompt: "請輸入課程主題（例：AI 系統設計工作坊）"
+
+  - field: duration_days
+    type: integer
+    required: false
+    default: 2
+    prompt: "課程天數？（預設 2）"
+
+  - field: audience_level
+    type: string
+    required: false
+    default: intermediate
+    options: [beginner, intermediate, advanced]
+    prompt: "受眾程度？（beginner / intermediate / advanced）"
+
+  - field: module_count
+    type: integer
+    required: false
+    default: 4
+    prompt: "模組數量？（預設 4）"
+
+  - field: output_formats
+    type: list
+    required: false
+    default: [yaml, md]
+    options: [yaml, md, pdf]
+    prompt: "輸出格式？（yaml / md / pdf，可多選）"
+
+# ── 執行序列 ──────────────────────────────────────────────
+sequence:
+  - step: 1
+    call: 1_project_engine
+    description: "生成課程骨架與模組大綱"
+    passes_inputs:
+      - course_topic
+      - duration_days
+      - audience_level
+      - module_count
+    on_success: continue
+    on_failure: abort_and_log
+
+  - step: 2
+    call: 2_learner_handout_generator
+    description: "為每個模組生成學員講義"
+    reads: artifacts/handouts/outline.yaml
+    on_success: continue
+    on_failure: abort_and_log
+
+  - step: 3
+    call: 3_sdd_auto_generator
+    description: "將實作任務轉化為 App SDD 規格"
+    reads:
+      - artifacts/handouts/outline.yaml
+      - "artifacts/handouts/*.md"
+    on_success: continue
+    on_failure: log_and_continue   # SDD 非必要，可跳過
+
+  - step: 4
+    call: 4_gamma_generator
+    description: "生成 Gamma 投影片文本"
+    reads: "artifacts/handouts/*.md"
+    on_success: continue
+    on_failure: log_and_continue   # 投影片非必要，可跳過
+
+  - step: 5
+    call: 6_verifier_auto_checker
+    description: "驗證所有產物品質"
+    reads: "artifacts/**"
+    on_success: continue
+    on_failure: abort_and_flag     # 驗證失敗必須中止
+
+  - step: 6
+    call: 7_packager_auto_zipper
+    description: "打包通過驗證的產物"
+    depends_on: "6_verifier_auto_checker"
+    on_success: continue
+    on_failure: abort_and_log
+
+  - step: 7
+    call: 5_notifier_auto_dispatch
+    description: "通知相關人員，附上下載連結"
+    reads: artifacts/bundles/
+    on_success: log_success
+    on_failure: log_and_skip       # 通知失敗不影響產物
+
+# ── 執行後行為 ────────────────────────────────────────────
+post_run:
+  - write_run_log:
+      path: "artifacts/_logs/{date}_build.log"
+      includes: [start_time, end_time, steps_status, errors]
+  - trigger_if_issues:
+      condition: "_issues/ 非空"
+      action: "提示使用者執行 /verify 查看問題"
+
+# ── 錯誤處理 ──────────────────────────────────────────────
+error_handling:
+  abort_and_log:
+    action: 停止執行，寫入 _logs/，顯示失敗步驟與錯誤訊息
+  log_and_continue:
+    action: 記錄錯誤，繼續下一步驟
+  abort_and_flag:
+    action: 停止執行，將問題寫入 _issues/，要求人工確認
+
+# ── 輸出摘要格式 ──────────────────────────────────────────
+output_format:
+  print_on_start: |
+    ╔══════════════════════════════════════════╗
+    ║  ExpertAI Course Engine · /build 啟動      ║
+    ║  課程：{course_topic}                    ║
+    ║  天數：{duration_days}  受眾：{audience} ║
+    ╚══════════════════════════════════════════╝
+  print_per_step: "▶ [{step}] 執行 {module_id}..."
+  print_on_success: "  ✓ {output_filename} 已生成"
+  print_on_failure: "  ✗ {module_id} 失敗：{error_message}"
+  print_on_complete: |
+    ══════════════════════════════════════════
+    ✅ /build 完成！共生成 {file_count} 個檔案
+    📦 交付包：{bundle_path}
+    ══════════════════════════════════════════

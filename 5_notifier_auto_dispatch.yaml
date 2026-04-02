@@ -1,0 +1,157 @@
+# ============================================================
+# 5_notifier_auto_dispatch.yaml
+# 學員通知 × Email / LINE 自動寄送
+# 觸發：/notify 或被 0_build_pipeline 最後一步呼叫
+# ============================================================
+
+module_id: notifier_auto_dispatch
+version: "1.1"
+trigger: "/notify"
+description: >
+  Pipeline 完成後的「對外介面」模組。
+  生成通知文案，並透過設定的渠道（Email / LINE）
+  自動寄送給學員。在 ChatGPT 環境中輸出通知草稿，
+  實際發送需搭配外部自動化工具（Zapier / Make.com）。
+
+# ── 依賴關係 ──────────────────────────────────────────────
+depends_on:
+  - module: 7_packager_auto_zipper
+    reads: artifacts/bundles/
+    required: true
+    error_if_missing: "交付包尚未生成，請先執行 /pack"
+  - module: 8_bridge_connector
+    reads: learner_list
+    required: false
+    fallback: "若無學員名單，生成通用版通知文案"
+
+# ── 通知渠道設定 ──────────────────────────────────────────
+channels:
+  - id: email
+    enabled: true
+    provider: "任何 SMTP 服務 / Zapier Gmail"
+    template: prompts/email_notify_template.md
+    to: "{{learner_list.emails}}"
+    subject_template: "【{course_title}】課程材料已準備好，請下載 📦"
+    send_conditions:
+      - bundle_exists: true
+      - learner_list_available: true
+
+  - id: line_message
+    enabled: true
+    provider: "LINE Notify / LINE Messaging API"
+    template: prompts/line_notify_template.md
+    webhook: "{{env.LINE_WEBHOOK_URL}}"
+    send_conditions:
+      - webhook_url_configured: true
+
+  - id: slack
+    enabled: false     # 預設關閉，需要時啟用
+    provider: "Slack Incoming Webhook"
+    webhook: "{{env.SLACK_WEBHOOK_URL}}"
+    target_channel: "#course-updates"
+
+# ── 通知內容規範 ──────────────────────────────────────────
+message_content:
+  required_elements:
+    - course_name:
+        source: outline.yaml → course.title
+    - date_of_session:
+        source: metadata → run_date
+    - bundle_download_link:
+        source: artifacts/bundles/ → 最新 ZIP 的下載連結
+        note: "若無雲端連結，提示上傳後填入"
+    - included_files_summary:
+        source: 7_packager → bundle manifest
+        format: "講義 {n} 份 / SDD {n} 份 / 投影片 {n} 份"
+    - next_steps:
+        content:
+          - "下載並解壓縮課程包"
+          - "完成帶走任務（見各模組講義末頁）"
+          - "有問題歡迎在群組提問"
+
+  optional_elements:
+    - personalized_greeting:
+        condition: "learner_list 含姓名欄位"
+        format: "親愛的 {learner.name}，"
+    - feedback_link:
+        condition: "feedback_form_url 已設定"
+    - next_session_reminder:
+        condition: "duration_days > 1 AND current_day < duration_days"
+
+# ── Email 模板結構 ────────────────────────────────────────
+email_template_structure:
+  subject: "【{course_title}】課程材料已準備好，請下載 📦"
+  body_sections:
+    - greeting:     "親愛的 {name}，"
+    - main_message: "感謝你參與《{course_title}》！今天的課程材料已整理完畢。"
+    - download_cta:
+        text:   "📦 點此下載課程包"
+        link:   "{bundle_download_link}"
+    - contents_list:
+        intro:  "這份課程包含："
+        items:  "{included_files_summary}"
+    - next_steps:   "接下來..."
+    - closing:      "如有任何問題，歡迎隨時聯繫。"
+    - signature:    "{facilitator_name} / {course_title} 課程團隊"
+
+# ── LINE 模板結構 ─────────────────────────────────────────
+line_template_structure:
+  format: "純文字（LINE Notify 不支援 HTML）"
+  max_chars: 1000
+  template: |
+    【{course_title}】課程材料通知
+
+    📦 今日課程材料已備妥！
+
+    ▶ 下載連結：{bundle_download_link}
+
+    包含內容：
+    {included_files_summary}
+
+    帶走任務提醒：
+    {takeaway_reminder}
+
+    有問題歡迎在群組提問 🙌
+
+# ── 自動化整合說明 ────────────────────────────────────────
+automation_integration:
+  chatgpt_behavior:
+    description: >
+      在 ChatGPT 環境中，此模組輸出通知文案草稿（不實際發送）。
+      使用者複製草稿後，透過 Zapier / Make.com 完成實際寄送。
+    output: "完整 Email 草稿 + LINE 草稿"
+
+  with_zapier:
+    description: "設定 Webhook 接收 pipeline 觸發，自動執行 Email / LINE 發送"
+    steps:
+      - "建立 Zapier Webhook trigger"
+      - "連接 Gmail / LINE Notify action"
+      - "將 webhook URL 填入此模組 channels 設定"
+
+  with_make:
+    description: "Make.com scenario 監聽 artifacts/bundles/ 新增事件後觸發"
+    steps:
+      - "建立 Scenario：Watch folder → Send Email → Send LINE"
+      - "設定觸發條件：bundles/ 出現新 .zip"
+
+# ── 錯誤處理 ──────────────────────────────────────────────
+error_handling:
+  channel_unavailable:
+    action: log_and_skip
+    message: "渠道 {channel_id} 未設定或連線失敗，跳過寄送"
+    log_to: "artifacts/_logs/{date}_notify.log"
+  learner_list_empty:
+    action: use_placeholder
+    message: "學員名單為空，使用通用版通知（不含個人化稱呼）"
+  bundle_not_found:
+    action: abort
+    message: "找不到交付包，無法生成通知。請先執行 /pack"
+
+# ── 輸出 ──────────────────────────────────────────────────
+outputs:
+  - type: draft_markdown
+    path: "artifacts/_logs/{date}_notify_draft.md"
+    description: "通知草稿（Email + LINE）"
+  - type: dispatch_log
+    path: "artifacts/_logs/{date}_notify.log"
+    fields: [timestamp, channel, status, recipient_count, error_if_any]

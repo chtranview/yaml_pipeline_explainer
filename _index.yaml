@@ -1,0 +1,100 @@
+# ============================================================
+# ExpertAI Course Engine · _index.yaml
+# Project Manifest — 系統總覽與模組索引
+# ============================================================
+
+project:
+  name: ExpertAI_Course_Engine
+  version: "4.0"
+  description: >
+    AI 課程自動化生成系統。
+    接收課程主題與參數，自動產出講義、SDD、投影片文本、
+    品質報告與交付包，並透過 Meta Loop 持續自我優化。
+  language: zh-TW
+  author: ExpertAI
+  last_updated: "2025-04-02"
+
+# ── 觸發指令總表 ──────────────────────────────────────────
+commands:
+  /build:
+    description: 執行完整 pipeline（模組 0 → 7，含驗證與打包）
+    calls: 0_build_pipeline
+  /outline:
+    description: 只生成課程骨架大綱
+    calls: 1_project_engine
+  /handout:
+    description: 生成指定模組學員講義
+    calls: 2_learner_handout_generator
+  /sdd:
+    description: 生成 App SDD 規格文件
+    calls: 3_sdd_auto_generator
+  /deck:
+    description: 生成 Gamma 投影片文本
+    calls: 4_gamma_generator
+  /notify:
+    description: 寄送學員通知
+    calls: 5_notifier_auto_dispatch
+  /verify:
+    description: 執行品質驗證
+    calls: 6_verifier_auto_checker
+  /pack:
+    description: 打包交付 ZIP
+    calls: 7_packager_auto_zipper
+  /bridge:
+    description: 同步外部資料（Sheets / Airtable / Notion）
+    calls: 8_bridge_connector
+  /meta:
+    description: 執行 Meta Loop，分析問題並生成改善建議
+    calls: 9_meta_loop
+
+# ── 模組索引 ─────────────────────────────────────────────
+modules:
+  - id: 0
+    file: 0_build_pipeline.yaml
+    role: 總指揮 · 一鍵建置流程
+  - id: 1
+    file: 1_project_engine_4.0.yaml
+    role: 課程骨架 × 教案引擎
+  - id: 2
+    file: 2_learner_handout_generator.yaml
+    role: 學員講義生成器
+  - id: 3
+    file: 3_sdd_auto_generator.yaml
+    role: App SDD 自動化生成
+  - id: 4
+    file: 4_gamma_generator.yaml
+    role: 投影片文字生成器（Gamma 用）
+  - id: 5
+    file: 5_notifier_auto_dispatch.yaml
+    role: 學員通知 × Email / LINE 自動寄送
+  - id: 6
+    file: 6_verifier_auto_checker.yaml
+    role: 產物品質檢核與修復
+  - id: 7
+    file: 7_packager_auto_zipper.yaml
+    role: 模組成果打包 ZIP 交付
+  - id: 8
+    file: 8_bridge_connector.yaml
+    role: 外部資料橋接（Sheets / Airtable / Notion）
+  - id: 9
+    file: 9_meta_loop.yaml
+    role: 課程更新 × 持續學習追蹤
+
+# ── Artifacts 結構 ────────────────────────────────────────
+artifacts_structure:
+  handouts/: "講義（YAML / MD / PDF）← 模組 1、2 寫入"
+  sdd/:       "SDD 文件（規格與 App 設計）← 模組 3 寫入"
+  gamma/:     "投影片文本（Gamma Deck）← 模組 4 寫入"
+  bundles/:   "打包 ZIP（交付用）← 模組 7 寫入"
+  _reports/:  "品質與 Meta 報告 ← 模組 6、9 寫入"
+  _logs/:     "模組執行紀錄（所有模組寫入）"
+  _issues/:   "格式與內容錯誤追蹤 ← 模組 6 寫入"
+  _queues/:   "Meta Loop 改善待辦 ← 模組 9 寫入"
+
+# ── 全域設定 ──────────────────────────────────────────────
+global_settings:
+  output_language: zh-TW
+  log_level: info           # debug | info | warn | error
+  on_error: abort_and_log
+  date_format: "YYYY-MM-DD"
+  encoding: UTF-8

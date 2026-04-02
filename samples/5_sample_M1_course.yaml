@@ -1,0 +1,221 @@
+# ============================================================
+# samples/5_sample_M1_course.yaml
+# M1（商品力 × AI 文案策略）完整課程範例
+# 這是一份真實可執行的課程 YAML，展示 1_project_engine 的輸出格式
+# ============================================================
+
+course:
+  title: "商品力 × AI 文案策略：讓 AI 幫你說出產品的靈魂"
+  topic: "AI Copywriting & Product Positioning"
+  audience_level: intermediate
+  duration_days: 1
+  total_modules: 4
+  language: zh-TW
+  created_by: ExpertAI Course Engine v4.0
+  created_at: "2025-04-02"
+
+  objectives:
+    - "能夠用結構化思維拆解產品的核心價值主張"
+    - "學會設計可重複使用的 AI 文案生成 YAML 模組"
+    - "建立至少一套品牌語氣（Tone of Voice）的 Prompt 規格"
+    - "帶走一個可在 ChatGPT 直接執行的文案工廠模組"
+
+  schedule:
+    - day: 1
+      blocks:
+        - time: "09:00–10:30"
+          module_id: M1_product_positioning
+          title: "商品力解構：從功能到價值主張"
+        - time: "10:30–10:45"
+          type: break
+        - time: "10:45–12:15"
+          module_id: M2_tone_design
+          title: "品牌語氣設計：讓 AI 說話像你"
+        - time: "12:15–13:15"
+          type: lunch
+        - time: "13:15–14:45"
+          module_id: M3_copy_yaml
+          title: "文案 YAML 模組實戰：打造你的文案工廠"
+        - time: "14:45–15:00"
+          type: break
+        - time: "15:00–16:30"
+          module_id: M4_system_integration
+          title: "整合與交付：從單一文案到完整內容系統"
+
+  modules:
+
+    - module_id: M1_product_positioning
+      title: "商品力解構：從功能到價值主張"
+      day: 1
+      order: 1
+      duration_minutes: 90
+      difficulty: easy
+      depends_on: []
+
+      learning_objectives:
+        - "能夠區分「功能描述」與「價值主張」的本質差異"
+        - "學會用 FAB 框架（Feature / Advantage / Benefit）拆解任一產品"
+        - "設計出 3 個不同受眾版本的產品核心訴求"
+
+      key_concepts:
+        - name: "價值主張（Value Proposition）"
+          definition: "產品對特定受眾解決特定問題的獨特方式"
+          analogy: "不是『我賣什麼』，而是『你得到什麼、你避開什麼痛』"
+        - name: "FAB 框架"
+          definition: "Feature（功能）→ Advantage（優勢）→ Benefit（利益）的轉化鏈"
+          analogy: "就像翻譯機：把工程師語言翻成顧客語言"
+        - name: "受眾畫像（Persona）"
+          definition: "具體描述目標顧客的身份、痛點、渴望與決策情境"
+          analogy: "給 AI 一個『誰在讀這份文案』的清晰畫面"
+
+      hands_on_task:
+        description: "選擇你目前負責的一個產品或服務，完成商品力拆解表"
+        step_by_step:
+          - "Step 1：列出產品的 5 個核心功能（Feature）"
+          - "Step 2：為每個功能寫出對應的優勢（Advantage）"
+          - "Step 3：將優勢轉化為顧客利益（Benefit），用『你可以...』句型"
+          - "Step 4：選出最強的 1 個 Benefit，寫成一句話價值主張"
+          - "Step 5：為 2 個不同受眾各改寫一個版本"
+        tools_needed:
+          - "紙筆或任何文字編輯器"
+          - "ChatGPT / Claude（可輔助，但先自己想）"
+        time_estimate: "30 分鐘"
+        success_criteria:
+          - "完成 FAB 表格（至少 3 個功能）"
+          - "產出至少 1 句清晰的價值主張"
+          - "有 2 個受眾版本"
+
+      takeaway: "一份你的產品商品力拆解表 + 2 個受眾版本的價值主張"
+
+      reflection_questions:
+        - "你現在的產品描述更接近 Feature 還是 Benefit？差距在哪裡？"
+        - "如果只能說一句話讓目標顧客停下來，你會說什麼？"
+        - "哪一個受眾版本感覺最難寫？為什麼？"
+
+    - module_id: M2_tone_design
+      title: "品牌語氣設計：讓 AI 說話像你"
+      day: 1
+      order: 2
+      duration_minutes: 90
+      difficulty: medium
+      depends_on: [M1_product_positioning]
+
+      learning_objectives:
+        - "能夠用 4 個維度定義品牌語氣（Tone of Voice）"
+        - "設計出可注入 Prompt 的語氣規格 YAML"
+        - "測試並驗證 AI 輸出的語氣一致性"
+
+      key_concepts:
+        - name: "Tone of Voice（ToV）"
+          definition: "品牌在所有文字溝通中一貫呈現的個性與說話方式"
+          analogy: "就像一個人的說話風格——你閉著眼睛也能認出是他"
+        - name: "語氣四維度"
+          definition: "正式←→輕鬆、熱情←→冷靜、專業←→親切、嚴肅←→幽默"
+          analogy: "像調音台，每個旋鈕調到哪個刻度決定品牌聲音"
+        - name: "Prompt 語氣注入"
+          definition: "將 ToV 規格轉化為 AI 可理解的 Prompt 指令"
+          analogy: "給演員角色說明書，不只說『說話自然』，而是給具體台詞範例"
+
+      hands_on_task:
+        description: "為你的品牌（或假設品牌）設計語氣規格，並轉化為 YAML"
+        step_by_step:
+          - "Step 1：在四個維度上為你的品牌定位（各給 1-10 分）"
+          - "Step 2：寫出 3 個『這個品牌會說的話』與 3 個『不會說的話』"
+          - "Step 3：選一段現有文案，標注哪些詞語最能體現品牌語氣"
+          - "Step 4：將以上整理成 tone_of_voice.yaml 格式"
+          - "Step 5：把 YAML 注入 ChatGPT，生成一段測試文案，評分是否符合"
+        tools_needed:
+          - "ChatGPT 或 Claude"
+          - "tone_of_voice.yaml 模板（見講義末附錄）"
+        time_estimate: "40 分鐘"
+        success_criteria:
+          - "完成 tone_of_voice.yaml（含四維度評分、do/don't 各 3 條）"
+          - "成功用 YAML 生成一段語氣一致的測試文案"
+
+      takeaway: "你的品牌 tone_of_voice.yaml，可直接複用於後續所有文案生成任務"
+
+      reflection_questions:
+        - "你的品牌語氣和競品相比，最獨特的地方是什麼？"
+        - "AI 生成的測試文案和你理想中的有什麼落差？"
+        - "語氣規格中，哪個維度最難用文字定義？"
+
+    - module_id: M3_copy_yaml
+      title: "文案 YAML 模組實戰：打造你的文案工廠"
+      day: 1
+      order: 3
+      duration_minutes: 90
+      difficulty: medium
+      depends_on: [M1_product_positioning, M2_tone_design]
+
+      learning_objectives:
+        - "設計一個可重複執行的文案生成 YAML 模組"
+        - "學會在模組中注入商品力資料與語氣規格"
+        - "生成至少 3 種格式的文案（社群貼文 / 電商頁面 / Email）"
+
+      key_concepts:
+        - name: "文案模組化"
+          definition: "將文案生成的所有規格（產品、受眾、語氣、格式）包裝為可重用的 YAML 模組"
+          analogy: "文案模具——同一個模具，換不同材料（產品資料），壓出不同形狀（文案格式）"
+        - name: "Output Variants"
+          definition: "同一套產品資料，一鍵生成多種平台格式的文案"
+          analogy: "一個食材，做出沙拉、炒菜、湯三種料理"
+
+      hands_on_task:
+        description: "建立你的 copy_generator.yaml，並成功生成三種格式的文案"
+        step_by_step:
+          - "Step 1：建立 copy_generator.yaml，填入 product_info 區塊"
+          - "Step 2：引用 M2 完成的 tone_of_voice.yaml"
+          - "Step 3：定義三個 output_variants（IG / 電商 / Email）"
+          - "Step 4：將 YAML 貼入 ChatGPT，執行 /generate"
+          - "Step 5：評估輸出品質，調整模組後重新執行"
+        time_estimate: "50 分鐘"
+        success_criteria:
+          - "copy_generator.yaml 結構完整（product / tone / variants 三區塊）"
+          - "成功生成 IG 貼文、電商標題、Email 主旨各一份"
+          - "三份文案語氣一致，符合 M2 的 ToV 規格"
+
+      takeaway: "copy_generator.yaml + 三份可用文案初稿"
+
+      reflection_questions:
+        - "哪個輸出格式的品質最差？你怎麼修改 YAML 來改善？"
+        - "如果要加入第四種格式（如 YouTube 標題），你會怎麼擴展模組？"
+        - "這個模組如何讓非文案背景的同事也能產出一致品質的內容？"
+
+    - module_id: M4_system_integration
+      title: "整合與交付：從單一文案到完整內容系統"
+      day: 1
+      order: 4
+      duration_minutes: 90
+      difficulty: hard
+      depends_on: [M1_product_positioning, M2_tone_design, M3_copy_yaml]
+
+      learning_objectives:
+        - "將 M1-M3 的三個模組整合為一個完整的內容生成系統"
+        - "設計 pipeline 讓系統可一鍵生成完整的上市文案包"
+        - "理解如何為系統加入驗證與版本控制機制"
+
+      key_concepts:
+        - name: "內容系統 vs 單次生成"
+          definition: "系統可以重複執行、版本管理、多人共用；單次生成只能用一次"
+          analogy: "菜單 vs 廚師腦中的食譜——前者可交接、可更新、可規模化"
+
+      hands_on_task:
+        description: "建立 content_pipeline.yaml，整合三個模組並生成完整上市文案包"
+        step_by_step:
+          - "Step 1：建立 content_pipeline.yaml，定義 sequence"
+          - "Step 2：設定 inputs（product_name, launch_date, target_audience）"
+          - "Step 3：將 M1 / M2 / M3 列為 pipeline steps"
+          - "Step 4：執行 /launch，觀察三個步驟依序執行"
+          - "Step 5：將輸出整理為可交付的文案包（Markdown 格式）"
+        time_estimate: "60 分鐘"
+        success_criteria:
+          - "content_pipeline.yaml 可完整執行（3 步驟）"
+          - "輸出包含商品力摘要 + 語氣規格 + 三種格式文案"
+          - "文案包可直接交給設計師使用"
+
+      takeaway: "content_pipeline.yaml + 完整上市文案包（可直接使用）"
+
+      reflection_questions:
+        - "這套系統如何節省你下一個產品的文案製作時間？"
+        - "如果要讓不同產品線共用這套系統，你需要調整哪些部分？"
+        - "下一步你想整合哪個外部工具（Notion / Airtable / Canva）？"

@@ -1,0 +1,162 @@
+# ============================================================
+# 1_project_engine_4.0.yaml
+# 課程骨架 × 教案引擎
+# 觸發：/outline 或被 0_build_pipeline 呼叫
+# ============================================================
+
+module_id: project_engine
+version: "4.0"
+trigger: "/outline"
+description: >
+  整個系統的地基模組。接收課程主題與參數，
+  拆解為獨立模組結構，定義每模組的學習目標、
+  時長與依賴關係，輸出 outline.yaml 供後續模組共用。
+
+# ── 輸入參數 ──────────────────────────────────────────────
+inputs:
+  - field: course_topic
+    type: string
+    required: true
+    example: "AI 系統設計工作坊：從使用者到設計者"
+
+  - field: duration_days
+    type: integer
+    required: false
+    default: 2
+
+  - field: audience_level
+    type: string
+    required: false
+    default: intermediate
+    options: [beginner, intermediate, advanced]
+    audience_guidance:
+      beginner:     "無技術背景，以概念與工具操作為主"
+      intermediate: "有 AI 使用經驗，可理解系統設計邏輯"
+      advanced:     "有開發能力，可執行 API / MCP 整合"
+
+  - field: module_count
+    type: integer
+    required: false
+    default: 4
+    range: [2, 10]
+
+  - field: focus_areas
+    type: list
+    required: false
+    default: [skill_design, yaml_system, mcp_integration]
+    options:
+      - skill_design
+      - yaml_system
+      - mcp_integration
+      - prompt_engineering
+      - ai_workflow
+      - data_bridge
+
+# ── 執行步驟 ──────────────────────────────────────────────
+steps:
+  - id: define_learning_objectives
+    description: 根據主題與受眾定義整體課程學習目標（3-5 條）
+    output_field: course.objectives
+    rules:
+      - 每條目標以動詞開頭（能夠、學會、設計、建立）
+      - 目標必須可觀察、可驗證
+      - 避免模糊詞語如「了解」、「知道」
+
+  - id: break_into_modules
+    description: 將課程拆解為獨立模組，每個模組有明確 I/O 邊界
+    output_field: course.modules[]
+    rules:
+      - 每個模組聚焦單一核心概念
+      - 模組之間依賴關係須明確標注
+      - 每模組必須有可交付的帶走成果
+
+  - id: sequence_by_dependency
+    description: 按依賴關係排序模組，確保先備知識在前
+    output_field: course.sequence
+
+  - id: assign_time_blocks
+    description: 為每個模組分配時間區塊（含緩衝時間）
+    output_field: course.schedule
+    rules:
+      - 單模組最長 90 分鐘，超過須拆分
+      - 每 90 分鐘安排一次休息
+      - 實作環節佔比不低於 40%
+
+# ── 輸出規範 ──────────────────────────────────────────────
+output:
+  primary:
+    path: artifacts/handouts/outline.yaml
+    format: yaml
+    schema:
+      course:
+        title: string
+        topic: string
+        audience_level: string
+        duration_days: integer
+        total_modules: integer
+        objectives: list[string]
+        modules:
+          - module_id: string          # 例：M1_intro
+            title: string
+            day: integer
+            order: integer
+            duration_minutes: integer
+            learning_objectives: list[string]   # 最多 3 條
+            key_concepts: list[string]
+            depends_on: list[string]   # 前置模組 ID
+            hands_on_task: string
+            takeaway: string
+            difficulty: string         # easy | medium | hard
+        schedule:
+          - day: integer
+            blocks: list
+
+  also_passes_to:
+    - module: 2_learner_handout_generator
+      data: course.modules
+    - module: 3_sdd_auto_generator
+      data: course.modules[].hands_on_task
+    - module: 4_gamma_generator
+      data: course.modules[].key_concepts
+
+# ── 輸出範例（供 ChatGPT 參考格式） ─────────────────────
+output_example:
+  course:
+    title: "AI 系統設計工作坊：從使用者到設計者"
+    topic: "AI System Design"
+    audience_level: intermediate
+    duration_days: 2
+    total_modules: 4
+    objectives:
+      - "能夠從需求出發拆解 AI 系統模組結構"
+      - "學會設計可在 ChatGPT 與 Claude 執行的 YAML Skill"
+      - "建立至少一個可運行的 MCP Server"
+    modules:
+      - module_id: M1_architecture
+        title: "架構師視角：從需求出發設計模組"
+        day: 1
+        order: 1
+        duration_minutes: 90
+        learning_objectives:
+          - "理解模組化設計的三個核心原則"
+          - "能夠拆解任一工作流程的 I/O 邊界"
+        key_concepts:
+          - "模組 vs 工具的本質差異"
+          - "I/O 邊界設計"
+          - "依賴關係圖"
+        depends_on: []
+        hands_on_task: "選一個自己的工作流程，畫出模組拆解圖"
+        takeaway: "一張個人工作流程的模組架構圖"
+        difficulty: easy
+
+# ── 錯誤處理 ──────────────────────────────────────────────
+validation:
+  required_fields_per_module:
+    - module_id
+    - title
+    - learning_objectives
+    - hands_on_task
+    - takeaway
+  on_missing_field:
+    action: flag_to_issues
+    message: "模組 {module_id} 缺少必填欄位：{field_name}"
