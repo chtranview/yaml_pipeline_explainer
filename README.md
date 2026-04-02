@@ -23,5 +23,5 @@ Expert Course Engine · YAML Pipeline 完整解析
 
 8_bridge_connector.yaml 外部資料橋接（Sheets / Airtable / Notion）
 
-##9_meta_loop.yaml 課程更新 × 持續學習追蹤
+- 9_meta_loop.yaml 課程更新 × 持續學習追蹤
 
