@@ -1,0 +1,26 @@
+sdd:
+  feature_list:
+    must_have:
+    - acceptance_criteria:
+      - 能夠正確執行主要流程
+      - 輸出符合預期格式
+      description: （請替換）模組 3 實作任務：（請替換為實際任務描述）
+      feature_id: F01
+      name: 核心功能
+  generated_at: '2026-04-05'
+  generated_by: 3_sdd_auto_generator v1.3 (local)
+  module_source: M3
+  overview:
+    app_name: Python 資料分析實戰 — 模組 3 — 實作 App
+    estimated_build_time:
+      basic_version: 30 分鐘
+      full_version: 60 分鐘
+    goal: 完成 M3 的實作任務
+    target_user: 工作坊學員
+    tech_stack_suggestion:
+    - Python
+    - Streamlit
+  user_stories:
+  - id: US1
+    priority: must
+    story: As a 學員, I want to 模組 3 實作任務：（請替換為實際任務描述）, so that 完成實作任務

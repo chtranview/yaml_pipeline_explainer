@@ -1,0 +1,45 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build: 執行完整 pipeline",
+      "type": "shell",
+      "command": "${workspaceFolder}/yaml_pipeline_explainer/.venv/Scripts/python.exe",
+      "args": ["-m", "runtime.main", "build", "--topic", "${input:courseTopic}"],
+      "options": {
+        "cwd": "${workspaceFolder}/yaml_pipeline_explainer"
+      },
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "outline: 生成課程骨架",
+      "type": "shell",
+      "command": "${workspaceFolder}/yaml_pipeline_explainer/.venv/Scripts/python.exe",
+      "args": ["-m", "runtime.main", "outline", "--topic", "${input:courseTopic}"],
+      "options": {
+        "cwd": "${workspaceFolder}/yaml_pipeline_explainer"
+      },
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "verify: 執行品質驗證",
+      "type": "shell",
+      "command": "${workspaceFolder}/yaml_pipeline_explainer/.venv/Scripts/python.exe",
+      "args": ["-m", "runtime.main", "verify"],
+      "options": {
+        "cwd": "${workspaceFolder}/yaml_pipeline_explainer"
+      },
+      "group": "test",
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "courseTopic",
+      "type": "promptString",
+      "description": "請輸入課程主題"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Pipeline - build",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "runtime.main",
+      "args": ["build", "--topic", "AI 系統設計工作坊"],
+      "cwd": "${workspaceFolder}/yaml_pipeline_explainer",
+      "python": "${workspaceFolder}/yaml_pipeline_explainer/.venv/Scripts/python.exe",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Run Pipeline - outline",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "runtime.main",
+      "args": ["outline", "--topic", "AI 系統設計工作坊"],
+      "cwd": "${workspaceFolder}/yaml_pipeline_explainer",
+      "python": "${workspaceFolder}/yaml_pipeline_explainer/.venv/Scripts/python.exe",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Run Pipeline - verify",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "runtime.main",
+      "args": ["verify"],
+      "cwd": "${workspaceFolder}/yaml_pipeline_explainer",
+      "python": "${workspaceFolder}/yaml_pipeline_explainer/.venv/Scripts/python.exe",
+      "console": "integratedTerminal"
+    }
+  ]
+}

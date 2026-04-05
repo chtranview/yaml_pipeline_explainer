@@ -1,0 +1,86 @@
+overview:
+  app_name: "YAML Builder — AI 模組規格編輯器"
+  goal: "把 Skill 草稿轉成可讀、可維護的 YAML 模組規格"
+  target_user: "想把 AI 任務標準化、模組化的進階學員與 AI 流程設計者"
+  tech_stack_suggestion:
+    - "HTML/CSS/JavaScript（純前端）"
+    - "或 React + Monaco Editor"
+    - "可搭配 YAML Lint Library"
+
+user_stories:
+  - "As a learner, I want to convert my Skill into YAML, so that I can make it more structured and reusable."
+  - "As a course facilitator, I want learners to define inputs and outputs clearly, so that their AI modules are buildable."
+  - "As an AI workflow designer, I want to validate the YAML structure, so that the module can be reused by others."
+
+feature_list:
+  - feature_name: "YAML 欄位模板產生器"
+    priority: must
+    description: "協助使用者填寫 module_id、description、inputs、steps、outputs、validation 等欄位"
+    acceptance_criteria:
+      - "可快速建立一份完整 YAML 骨架"
+      - "欄位命名與課堂規範一致"
+
+  - feature_name: "結構化 YAML 預覽"
+    priority: must
+    description: "將使用者輸入內容整理成 YAML 顯示"
+    acceptance_criteria:
+      - "可正確縮排"
+      - "欄位層級清楚"
+      - "內容不會混成自然語言段落"
+
+  - feature_name: "Validation Checker"
+    priority: must
+    description: "檢查必要欄位是否存在"
+    acceptance_criteria:
+      - "若缺少 module_id / inputs / outputs 可顯示提示"
+      - "若 YAML 結構錯誤可提示可能原因"
+
+  - feature_name: "範例模組切換"
+    priority: should
+    description: "可切換會議摘要、課程生成、內容整理等範例"
+    acceptance_criteria:
+      - "點選後可載入不同 YAML 範本"
+      - "使用者可再自行編輯"
+
+  - feature_name: "一鍵複製"
+    priority: should
+    description: "將完整 YAML 複製到剪貼簿"
+    acceptance_criteria:
+      - "點擊後可成功複製"
+      - "複製後格式不破壞"
+
+ui_wireframe_description:
+  screens:
+    - screen_name: "YAML 編輯器主畫面"
+      layout_description: "上方為模組基本資訊，左側為欄位輸入區，右側為 YAML 即時輸出"
+      key_interactions:
+        - "填寫欄位"
+        - "新增 steps"
+        - "新增 validation 規則"
+      notes: "盡量讓使用者不需要手動處理太多縮排"
+
+    - screen_name: "驗證結果區"
+      layout_description: "在頁面下方或側邊顯示 validation 提示"
+      key_interactions:
+        - "查看缺失欄位"
+        - "點擊跳回錯誤區塊"
+      notes: "提示應簡短，不要做複雜 IDE 體驗"
+
+success_criteria:
+  - criteria_id: SC1
+    description: "使用者能建立一份完整 YAML 模組骨架"
+    how_to_verify: "輸出包含 module_id、inputs、steps、outputs、validation"
+
+  - criteria_id: SC2
+    description: "輸出的 YAML 結構可被他人閱讀與理解"
+    how_to_verify: "讓另一位同學閱讀後能說出模組作用與流程"
+
+  - criteria_id: SC3
+    description: "至少能防止核心欄位缺失"
+    how_to_verify: "故意刪除 outputs 或 inputs 時系統會提醒"
+
+out_of_scope:
+  - "真正的 YAML parser 編譯器"
+  - "多人共編"
+  - "Git 版本控制"
+  - "跨模組自動 dependency graph 生成"

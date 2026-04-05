@@ -1,0 +1,39 @@
+status: warning
+issue_count: 6
+
+issues:
+  - id: ISSUE_01
+    severity: medium
+    area: handouts
+    title: "缺少最低完成線（Minimum Done）"
+    recommendation: "在每模組 handout 補上最低完成標準"
+
+  - id: ISSUE_02
+    severity: medium
+    area: handouts
+    title: "M2 / M3 缺少壞例子 vs 好例子對照"
+    recommendation: "增加對照案例以降低學習摩擦"
+
+  - id: ISSUE_03
+    severity: medium
+    area: sdd
+    title: "M4 SDD 定位略模糊"
+    recommendation: "將 M4 明確定義為展示級 AI Workflow MVP"
+
+  - id: ISSUE_04
+    severity: low
+    area: deck
+    title: "M2 / M3 deck 可再補畫面型示意"
+    recommendation: "加入更視覺化的例子頁"
+
+  - id: ISSUE_05
+    severity: medium
+    area: delivery
+    title: "缺少講師評分 Rubric"
+    recommendation: "增加簡易評分規則"
+
+  - id: ISSUE_06
+    severity: low
+    area: pedagogy
+    title: "缺少課後延伸行動頁"
+    recommendation: "補充 workshop 後續落地建議"

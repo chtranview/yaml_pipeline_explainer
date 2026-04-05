@@ -1,0 +1,33 @@
+module_id: meeting_summary_generator
+version: "1.0"
+description: >
+  將會議逐字稿轉成結構化摘要，
+  供團隊快速閱讀與後續執行。
+
+inputs:
+  - field: transcript
+    type: string
+    required: true
+
+steps:
+  - id: identify_topic
+    description: "辨識會議主題與討論範圍"
+  - id: summarize_key_points
+    description: "整理關鍵決策與重要討論"
+  - id: extract_actions
+    description: "列出待辦事項與負責人"
+
+outputs:
+  summary:
+    format: markdown
+    sections:
+      - summary
+      - key_decisions
+      - action_items
+
+validation:
+  - "摘要不得超過 300 字"
+  - "必須包含至少 3 個 action items"
+
+error_handling:
+  on_missing_transcript: "要求使用者補上逐字稿"

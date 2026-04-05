@@ -1,0 +1,88 @@
+overview:
+  app_name: "SkillForge — AI Skill 設計器"
+  goal: "幫助使用者把零散 Prompt 重構為可重用 Skill 規格"
+  target_user: "有 AI 使用經驗的知識工作者、講師、產品經理與內訓設計者，想把常用 AI 任務標準化的人"
+  tech_stack_suggestion:
+    - "HTML/CSS/JavaScript（純前端 MVP）"
+    - "或 React + Local Storage"
+    - "進階可串接 OpenAI / Claude API"
+
+user_stories:
+  - "As a workshop participant, I want to define a Skill's trigger and instruction, so that I can reuse the same AI workflow repeatedly."
+  - "As a facilitator, I want to give learners a fixed Skill structure, so that they can design AI tasks with less ambiguity."
+  - "As a knowledge worker, I want to export my Skill as structured text, so that I can reuse it in ChatGPT or Claude."
+
+feature_list:
+  - feature_name: "Skill 基本欄位編輯器"
+    priority: must
+    description: "讓使用者輸入 Skill 名稱、用途、Trigger、Input、Instruction、Output 與 Constraints"
+    acceptance_criteria:
+      - "使用者可在單一頁面完成所有欄位輸入"
+      - "欄位標題清楚，對應課程模板"
+      - "可保留已輸入內容直到重新整理頁面"
+
+  - feature_name: "即時 Skill 預覽"
+    priority: must
+    description: "將輸入內容即時轉為結構化 Skill 顯示"
+    acceptance_criteria:
+      - "輸入後右側或下方可立即看到整理後內容"
+      - "輸出格式一致"
+      - "缺欄位時有提示"
+
+  - feature_name: "YAML / Markdown 匯出"
+    priority: must
+    description: "可將 Skill 匯出為可複製的 YAML 或 Markdown 格式"
+    acceptance_criteria:
+      - "可一鍵複製 YAML"
+      - "可切換 YAML / Markdown 顯示"
+      - "輸出格式可直接貼進 ChatGPT / Claude"
+
+  - feature_name: "範例載入"
+    priority: should
+    description: "快速載入一組範例 Skill，降低初學門檻"
+    acceptance_criteria:
+      - "點擊後自動填入一份完整範例"
+      - "範例欄位對應實際輸出格式"
+
+  - feature_name: "品質提示"
+    priority: could
+    description: "檢查是否缺少 Trigger、Output Contract 或限制條件"
+    acceptance_criteria:
+      - "若缺少核心欄位會顯示提醒"
+      - "提示語簡短可理解"
+
+ui_wireframe_description:
+  screens:
+    - screen_name: "Skill 編輯頁"
+      layout_description: "左側為輸入欄位表單，右側為即時預覽區；手機版可上下排列"
+      key_interactions:
+        - "輸入 Skill 名稱與用途"
+        - "新增 / 編輯 instruction 條列"
+        - "切換輸出格式"
+      notes: "表單區應保持簡潔，不做複雜導覽"
+
+    - screen_name: "匯出頁 / 區塊"
+      layout_description: "在同一頁底部或側欄提供匯出區塊"
+      key_interactions:
+        - "複製 YAML"
+        - "複製 Markdown"
+      notes: "不需要真正下載檔案，MVP 可先用 copy to clipboard"
+
+success_criteria:
+  - criteria_id: SC1
+    description: "使用者能完成一份 Skill 的核心欄位填寫"
+    how_to_verify: "在頁面中輸入內容後，所有必要欄位都有值"
+
+  - criteria_id: SC2
+    description: "系統能產出結構一致的 Skill 格式"
+    how_to_verify: "切換 YAML / Markdown 後內容格式不錯亂"
+
+  - criteria_id: SC3
+    description: "學員能將產出內容直接帶回課堂實作"
+    how_to_verify: "將匯出內容貼到 ChatGPT 或 Claude 中仍可讀且可用"
+
+out_of_scope:
+  - "帳號登入與雲端同步"
+  - "多人協作"
+  - "API 自動測試 Skill 品質"
+  - "版本管理"

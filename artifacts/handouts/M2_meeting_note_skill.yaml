@@ -1,0 +1,19 @@
+skill_name: "會議摘要助手"
+purpose: "將會議逐字稿轉成可執行摘要"
+trigger: "當使用者貼上會議逐字稿並要求整理時啟動"
+input:
+  - meeting_transcript
+instruction:
+  - "先辨識會議主題"
+  - "整理關鍵決策"
+  - "列出待辦事項與負責人"
+  - "避免逐字複製整段原文"
+output:
+  format: markdown
+  sections:
+    - summary
+    - key_decisions
+    - action_items
+constraints:
+  - "摘要不得超過 300 字"
+  - "待辦事項需條列化"

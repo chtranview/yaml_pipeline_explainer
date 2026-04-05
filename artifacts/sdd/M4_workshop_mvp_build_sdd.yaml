@@ -1,0 +1,92 @@
+overview:
+  app_name: "FlowLab MVP — AI 工作流組裝器"
+  goal: "讓使用者把多個 AI 模組串接成可展示的工作流 MVP"
+  target_user: "已具備基本 AI 模組設計能力、希望快速組裝 Demo 的學員"
+  tech_stack_suggestion:
+    - "HTML/CSS/JavaScript（純前端）"
+    - "或 React + Local State"
+    - "進階可接流程圖編輯器或簡單節點 UI"
+
+user_stories:
+  - "As a learner, I want to connect multiple AI modules into one flow, so that I can demonstrate a usable MVP."
+  - "As a workshop presenter, I want to define success criteria for my AI workflow, so that I can show a clear outcome."
+  - "As a team member, I want a simple way to explain how the modules connect, so that others can understand the system."
+
+feature_list:
+  - feature_name: "模組流程定義器"
+    priority: must
+    description: "讓使用者輸入或選擇 2–4 個模組，定義它們的順序與關係"
+    acceptance_criteria:
+      - "可新增多個模組節點"
+      - "可設定前後順序"
+      - "可顯示簡單流程關係"
+
+  - feature_name: "輸入 / 輸出串接說明"
+    priority: must
+    description: "為每個模組定義輸入與輸出交接點"
+    acceptance_criteria:
+      - "每個模組都可填寫 input / output"
+      - "能看出前一模組輸出如何進入下一模組"
+
+  - feature_name: "Success Criteria 編輯器"
+    priority: must
+    description: "讓使用者定義 MVP 的完成標準"
+    acceptance_criteria:
+      - "可新增多條 criteria"
+      - "每條 criteria 可寫驗證方式"
+
+  - feature_name: "Demo 腳本區"
+    priority: should
+    description: "提供簡單欄位整理 3 分鐘 Demo 話術"
+    acceptance_criteria:
+      - "可輸入問題、流程、輸出展示"
+      - "可整理成條列式講稿"
+
+  - feature_name: "成果摘要頁"
+    priority: should
+    description: "將整個流程整理成一頁摘要"
+    acceptance_criteria:
+      - "可顯示 MVP 名稱、目標、流程與成功標準"
+      - "可直接作為展示頁"
+
+ui_wireframe_description:
+  screens:
+    - screen_name: "流程組裝主畫面"
+      layout_description: "中央為模組流程區塊，左側為模組設定欄，右側為成果摘要預覽"
+      key_interactions:
+        - "新增模組"
+        - "調整順序"
+        - "填寫每個模組說明"
+      notes: "MVP 不需要真正 drag-and-drop，按鈕排序即可"
+
+    - screen_name: "成功標準與 Demo 區"
+      layout_description: "下方分成兩區：Success Criteria 與 Demo Script"
+      key_interactions:
+        - "新增 criteria"
+        - "填寫驗證方式"
+        - "編輯 Demo 話術"
+      notes: "優先支援簡潔輸入，不追求複雜簡報編輯"
+
+success_criteria:
+  - criteria_id: SC1
+    description: "使用者能組出至少 2 個以上模組的工作流"
+    how_to_verify: "在畫面中建立 2 個以上模組並完成排序"
+
+  - criteria_id: SC2
+    description: "每個模組都有輸入與輸出定義"
+    how_to_verify: "每個模組卡片中皆有 input / output 欄位"
+
+  - criteria_id: SC3
+    description: "使用者能整理一份可展示的 MVP 說明"
+    how_to_verify: "完成 MVP 摘要頁與至少 3 條 success criteria"
+
+  - criteria_id: SC4
+    description: "成果可在 3 分鐘內清楚展示"
+    how_to_verify: "依 Demo 腳本可順利完成一次簡短演示"
+
+out_of_scope:
+  - "真正串接 API 執行工作流"
+  - "資料庫儲存"
+  - "團隊共編"
+  - "視覺化高保真節點編輯器"
+  - "正式部署流程"

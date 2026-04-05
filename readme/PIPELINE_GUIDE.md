@@ -1,7 +1,9 @@
 # ExpertAI Course Engine · 團隊操作指南
-> PIPELINE_GUIDE.md · v4.0 · 2025-04-02
+> PIPELINE_GUIDE.md · v4.1 · 2026-04-05
 
 這份指南說明如何在 **ChatGPT** 或 **Claude** 環境中執行完整的課程生成流程，適合講師、課程設計師與助理使用。
+
+> 📌 若你需要在本地端以 Python CLI 執行（離線、CI/CD、版本控管），請參閱 [RUNTIME_GUIDE.md](RUNTIME_GUIDE.md)。
 
 ---
 
@@ -22,31 +24,37 @@
 ```
 使用者輸入 /build
       ↓
-0_build_pipeline（總指揮）
+0_build_pipeline（總指揮）── 依序執行 7 步
       ↓
-┌─────────────────────────────────────┐
-│ 1 → 課程骨架（outline.yaml）         │
-│ 2 → 學員講義（handouts/*.md）        │
-│ 3 → App SDD（sdd/*.yaml）           │  同步生成
-│ 4 → 投影片文本（gamma/*.md）         │
-└─────────────────────────────────────┘
+Step 1 → 1_project_engine      → outline.yaml
       ↓
-6 → 品質驗證（verify.md）
+Step 2 → 2_handout_generator   → handouts/*.md
       ↓
-7 → 打包交付（bundles/*.zip）
+Step 3 → 3_sdd_generator       → sdd/*.yaml       （非必要，失敗可跳過）
       ↓
-5 → 通知學員（Email / LINE）
+Step 4 → 4_gamma_generator     → gamma/*.md        （非必要，失敗可跳過）
       ↓
-9 → Meta Loop（improvement.yaml）← 閉環回到步驟 1
+Step 5 → 6_verifier            → verify.md         （失敗則中止）
+      ↓
+Step 6 → 7_packager            → bundles/*.zip
+      ↓
+Step 7 → 5_notifier            → Email / LINE
+
+課程結束後：
+9 → Meta Loop（improvement.yaml）← 閉環回到 Step 1
 ```
 
 **核心原則：** 系統不是「魔法」，ChatGPT / Claude 是**解讀並模擬執行** YAML 規格的角色。你貼入的 YAML 越完整，輸出品質越穩定。
+
+> 💡 **Pipeline vs Runtime：** 本指南透過 AI 對話模擬執行 YAML 規格。若需要确定性執行、版本控管或 CI/CD 整合，請參閱 [RUNTIME_GUIDE.md](RUNTIME_GUIDE.md) 以 Python CLI 在本地執行同一套 YAML 流程。
 
 ---
 
 ## 2. 快速開始
 
 ### Step 1：設定 System Prompt
+
+#### ChatGPT
 
 打開 ChatGPT，建立新的 **Custom GPT** 或 **Project**，在 System Instructions 貼入：
 
@@ -63,6 +71,48 @@
 
 > **提示：** 不需要一次貼入全部 10 個模組。先貼 0、1、2，確認能正常運作後再逐步加入其他模組。
 
+#### Claude Code
+
+Claude Code 使用專案根目錄下的 `CLAUDE.md` 作為 System Prompt。在 `yaml_pipeline_explainer/` 根目錄建立此檔案：
+
+```bash
+# 進入專案目錄
+cd yaml_pipeline_explainer
+```
+
+建立 `CLAUDE.md`，內容如下：
+
+```markdown
+# ExpertAI Course Engine v4.0
+
+你是 ExpertAI Course Engine 的課程生成助手。
+請嚴格遵守本專案中的 YAML 規格執行所有課程生成任務。
+
+## 專案結構
+
+- `_index.yaml` — 指令對照表與模組索引
+- `0_build_pipeline.yaml` — /build 完整 pipeline 定義（7 步依序執行）
+- `1_project_engine_4.0.yaml` — 課程骨架引擎
+- `2_learner_handout_generator.yaml` — 學員講義生成器
+- `3_sdd_auto_generator.yaml` — App SDD 生成器
+- `4_gamma_generator.yaml` — 投影片文字生成器
+- `5_notifier_auto_dispatch.yaml` — 通知寄送
+- `6_verifier_auto_checker.yaml` — 品質驗證（10 項檢查規則）
+- `7_packager_auto_zipper.yaml` — 打包交付
+
+## 執行規則
+
+1. 收到 `/build`、`/outline`、`/verify` 等指令時，讀取對應的 YAML 模組定義並依序執行
+2. 所有產物寫入 `artifacts/` 對應子目錄（handouts/、sdd/、gamma/、_reports/）
+3. 講義格式參照 `prompts/handout_template.md`，SDD 格式參照 `prompts/sdd_template.md`
+4. 執行 /build 時依照 `0_build_pipeline.yaml` 的 `sequence` 依序 7 步完成
+5. 輸出語言預設繁體中文
+```
+
+Claude Code 啟動時會自動讀取 `CLAUDE.md`，無需手動貼入 YAML 全文。它可以直接讀取專案中的 `.yaml` 檔案。
+
+> **優勢：** Claude Code 透過檔案系統存取完整專案，不受上下文視窗限制，且產物直接寫入本地 `artifacts/` 資料夾。
+
 ### Step 2：執行第一次 /build
 
 ```
@@ -75,21 +125,40 @@
 
 ### Step 3：觀察輸出
 
-系統應依序輸出：
+系統應依序輸出 7 個步驟（對應 `0_build_pipeline.yaml` 的 `sequence`）：
 
 ```
 ╔══════════════════════════════════════════╗
 ║  ExpertAI Course Engine · /build 啟動      ║
 ╚══════════════════════════════════════════╝
 
-▶ [1] 執行 project_engine...
-  ✓ outline.yaml 已生成
+▶ [1/7] project_engine
+  ✓ outline.yaml 已生成（4 個模組）
 
-▶ [2] 執行 learner_handout_generator...
+▶ [2/7] learner_handout_generator
   ✓ M1_architecture.md 已生成
   ✓ M2_skill_design.md 已生成
-  ...
+  ✓ M3_yaml_pipeline.md 已生成
+  ✓ M4_mcp_integration.md 已生成
+
+▶ [3/7] sdd_auto_generator
+  ✓ M3_yaml_pipeline_sdd.yaml 已生成
+  ✓ M4_mcp_integration_sdd.yaml 已生成
+
+▶ [4/7] gamma_generator
+  ✓ slides.md 已生成
+
+▶ [5/7] verifier_auto_checker
+  ✓ verify.md — 通過 4/4 項
+
+▶ [6/7] packager_auto_zipper
+  ✓ 打包完成
+
+▶ [7/7] notifier_auto_dispatch
+  ✓ 通知草稿已生成
 ```
+
+> 💡 **提示：** 若 AI 輸出中斷（上下文視窗不足），可輸入「繼續」讓它從中斷處接續輸出。
 
 ---
 
@@ -233,14 +302,14 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "/path/to/ExpertAI_Course_Engine"
+        "/path/to/yaml_pipeline_explainer"
       ]
     }
   }
 }
 ```
 
-設定後，Claude 執行 `/build` 時可直接將輸出寫入 `artifacts/` 資料夾。
+設定後，Claude 執行 `/build` 時可直接將輸出寫入 `artifacts/` 資料夾。而 Runtime 模式的 `verify` 指令可直接驗證 Claude 的輸出品質。
 
 ---
 
@@ -291,4 +360,4 @@ docs: update PIPELINE_GUIDE with Zapier integration steps
 
 ---
 
-*ExpertAI Course Engine v4.0 · 從主題到交付，系統自動運作*
+*ExpertAI Course Engine v4.1 · 從主題到交付，系統自動運作*

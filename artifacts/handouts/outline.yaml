@@ -1,0 +1,106 @@
+course:
+  audience_level: beginner
+  duration_days: 3
+  modules:
+  - day: 1
+    depends_on: []
+    difficulty: easy
+    duration_minutes: 60
+    hands_on_task: 模組 1 實作任務：（請替換為實際任務描述）
+    key_concepts:
+    - 概念 1-A：（請替換為實際概念）
+    - 概念 1-B：（請替換為實際概念）
+    learning_objectives:
+    - 能夠掌握模組 1 的核心概念
+    - 能夠完成模組 1 的動手實作任務
+    module_id: M1
+    order: 1
+    takeaway: 模組 1 帶走成果：（請替換為實際成果）
+    title: Python 資料分析實戰 — 模組 1
+  - day: 1
+    depends_on:
+    - M1
+    difficulty: easy
+    duration_minutes: 60
+    hands_on_task: 模組 2 實作任務：（請替換為實際任務描述）
+    key_concepts:
+    - 概念 2-A：（請替換為實際概念）
+    - 概念 2-B：（請替換為實際概念）
+    learning_objectives:
+    - 能夠掌握模組 2 的核心概念
+    - 能夠完成模組 2 的動手實作任務
+    module_id: M2
+    order: 2
+    takeaway: 模組 2 帶走成果：（請替換為實際成果）
+    title: Python 資料分析實戰 — 模組 2
+  - day: 2
+    depends_on:
+    - M2
+    difficulty: medium
+    duration_minutes: 60
+    hands_on_task: 模組 3 實作任務：（請替換為實際任務描述）
+    key_concepts:
+    - 概念 3-A：（請替換為實際概念）
+    - 概念 3-B：（請替換為實際概念）
+    learning_objectives:
+    - 能夠掌握模組 3 的核心概念
+    - 能夠完成模組 3 的動手實作任務
+    module_id: M3
+    order: 3
+    takeaway: 模組 3 帶走成果：（請替換為實際成果）
+    title: Python 資料分析實戰 — 模組 3
+  - day: 2
+    depends_on:
+    - M3
+    difficulty: easy
+    duration_minutes: 60
+    hands_on_task: 模組 4 實作任務：（請替換為實際任務描述）
+    key_concepts:
+    - 概念 4-A：（請替換為實際概念）
+    - 概念 4-B：（請替換為實際概念）
+    learning_objectives:
+    - 能夠掌握模組 4 的核心概念
+    - 能夠完成模組 4 的動手實作任務
+    module_id: M4
+    order: 4
+    takeaway: 模組 4 帶走成果：（請替換為實際成果）
+    title: Python 資料分析實戰 — 模組 4
+  - day: 3
+    depends_on:
+    - M4
+    difficulty: easy
+    duration_minutes: 60
+    hands_on_task: 模組 5 實作任務：（請替換為實際任務描述）
+    key_concepts:
+    - 概念 5-A：（請替換為實際概念）
+    - 概念 5-B：（請替換為實際概念）
+    learning_objectives:
+    - 能夠掌握模組 5 的核心概念
+    - 能夠完成模組 5 的動手實作任務
+    module_id: M5
+    order: 5
+    takeaway: 模組 5 帶走成果：（請替換為實際成果）
+    title: Python 資料分析實戰 — 模組 5
+  - day: 3
+    depends_on:
+    - M5
+    difficulty: easy
+    duration_minutes: 60
+    hands_on_task: 模組 6 實作任務：（請替換為實際任務描述）
+    key_concepts:
+    - 概念 6-A：（請替換為實際概念）
+    - 概念 6-B：（請替換為實際概念）
+    learning_objectives:
+    - 能夠掌握模組 6 的核心概念
+    - 能夠完成模組 6 的動手實作任務
+    module_id: M6
+    order: 6
+    takeaway: 模組 6 帶走成果：（請替換為實際成果）
+    title: Python 資料分析實戰 — 模組 6
+  objectives:
+  - 能夠系統性掌握「Python 資料分析實戰」的核心知識
+  - 學會應用所學解決入門程度的實務問題
+  - 建立至少一個可運行的實作成果
+  title: Python 資料分析實戰
+  topic: Python 資料分析實戰
+  total_modules: 6

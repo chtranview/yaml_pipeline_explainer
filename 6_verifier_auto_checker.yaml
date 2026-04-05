@@ -171,7 +171,25 @@ auto_fix_capabilities:
   - "清除 YAML 多餘空行"
   - "標準化 module_id 大小寫格式（M1_xxx → M1_xxx）"
   - "在缺少的 MD 段落末加入 [需補充] 標記"
-  note: "自動修復後重新執行對應 check，確認修復成功"
+auto_fix_note: "自動修復後重新執行對應 check，確認修復成功"
+
+# ── 執行步驟（供 Runtime executor 驅動）────────────────────
+steps:
+  - step: 1
+    description: "掃描 artifacts/ 目錄，收集所有產物檔案清單"
+    output_field: file_inventory
+  - step: 2
+    description: "依序執行 checks[] 中的結構驗證（C01–C05）"
+    output_field: structural_results
+  - step: 3
+    description: "依序執行 checks[] 中的內容驗證（C06–C10）"
+    output_field: content_results
+  - step: 4
+    description: "嘗試自動修復可處理的問題"
+    output_field: auto_fix_results
+  - step: 5
+    description: "彙整結果，生成驗證報告與問題清單"
+    output_field: verification_report
 
 # ── 輸出 ──────────────────────────────────────────────────
 outputs:

@@ -1,0 +1,64 @@
+---
+
+# artifacts/handouts/*_meta.yaml（摘要版）
+
+以下是對應的機器可讀 meta 資訊（簡化版）：
+
+```yaml id="2m9ffm"
+generated_at: "2026-04-03"
+handouts:
+  - module_id: M1_system_thinking
+    title: "模組化思維：把 AI 使用流程拆成系統"
+    word_count_estimate: 980
+    sections_status:
+      header: true
+      learning_objectives: true
+      key_concepts: true
+      concept_map: true
+      hands_on_task: true
+      takeaway: true
+      reflection_questions: true
+      resources: true
+      instructor_notes: false
+
+  - module_id: M2_prompt_skill_design
+    title: "從 Prompt 到 Skill：設計可重用的 AI 任務單元"
+    word_count_estimate: 1060
+    sections_status:
+      header: true
+      learning_objectives: true
+      key_concepts: true
+      concept_map: true
+      hands_on_task: true
+      takeaway: true
+      reflection_questions: true
+      resources: true
+      instructor_notes: false
+
+  - module_id: M3_yaml_course_architecture
+    title: "YAML 作為 AI 系統藍圖：把流程變成可執行規格"
+    word_count_estimate: 1080
+    sections_status:
+      header: true
+      learning_objectives: true
+      key_concepts: true
+      concept_map: true
+      hands_on_task: true
+      takeaway: true
+      reflection_questions: true
+      resources: true
+      instructor_notes: false
+
+  - module_id: M4_workshop_mvp_build
+    title: "Workshop MVP：組裝一個可運作的 AI 系統原型"
+    word_count_estimate: 1040
+    sections_status:
+      header: true
+      learning_objectives: true
+      key_concepts: true
+      concept_map: true
+      hands_on_task: true
+      takeaway: true
+      reflection_questions: true
+      resources: true
+      instructor_notes: false

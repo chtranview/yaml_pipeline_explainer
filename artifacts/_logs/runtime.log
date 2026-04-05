@@ -1,0 +1,293 @@
+2026-04-05 14:27:25,937 [INFO] ExpertAI Course Engine 2 啟動
+2026-04-05 14:27:25,948 [INFO] 指令：/build
+2026-04-05 14:27:25,996 [INFO] 路由至模組：build_pipeline
+2026-04-05 14:27:25,996 [INFO] 開始執行模組：build_pipeline
+2026-04-05 14:27:25,996 [INFO]   ▶ [1] 生成課程骨架與模組大綱
+2026-04-05 14:27:25,996 [INFO]     → 呼叫子模組：1_project_engine
+2026-04-05 14:27:25,996 [INFO]   ✓ [1] 完成
+2026-04-05 14:27:25,996 [INFO]   ▶ [2] 為每個模組生成學員講義
+2026-04-05 14:27:25,996 [INFO]     → 呼叫子模組：2_learner_handout_generator
+2026-04-05 14:27:25,996 [INFO]   ✓ [2] 完成
+2026-04-05 14:27:25,996 [INFO]   ▶ [3] 將實作任務轉化為 App SDD 規格
+2026-04-05 14:27:26,006 [INFO]     → 呼叫子模組：3_sdd_auto_generator
+2026-04-05 14:27:26,006 [INFO]   ✓ [3] 完成
+2026-04-05 14:27:26,006 [INFO]   ▶ [4] 生成 Gamma 投影片文本
+2026-04-05 14:27:26,006 [INFO]     → 呼叫子模組：4_gamma_generator
+2026-04-05 14:27:26,006 [INFO]   ✓ [4] 完成
+2026-04-05 14:27:26,006 [INFO]   ▶ [5] 驗證所有產物品質
+2026-04-05 14:27:26,006 [INFO]     → 呼叫子模組：6_verifier_auto_checker
+2026-04-05 14:27:26,006 [INFO]   ✓ [5] 完成
+2026-04-05 14:27:26,006 [INFO]   ▶ [6] 打包通過驗證的產物
+2026-04-05 14:27:26,006 [INFO]     → 呼叫子模組：7_packager_auto_zipper
+2026-04-05 14:27:26,006 [INFO]   ✓ [6] 完成
+2026-04-05 14:27:26,006 [INFO]   ▶ [7] 通知相關人員，附上下載連結
+2026-04-05 14:27:26,006 [INFO]     → 呼叫子模組：5_notifier_auto_dispatch
+2026-04-05 14:27:26,006 [INFO]   ✓ [7] 完成
+2026-04-05 14:27:26,013 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\_logs\2026-04-05_build_pipeline.log
+2026-04-05 14:27:26,013 [INFO] 模組 build_pipeline 執行完畢
+2026-04-05 14:35:26,685 [INFO] ExpertAI Course Engine 2 啟動
+2026-04-05 14:35:26,695 [INFO] 指令：/build
+2026-04-05 14:35:26,720 [INFO] 路由至模組：build_pipeline
+2026-04-05 14:35:26,722 [INFO] 開始執行模組：build_pipeline
+2026-04-05 14:35:26,722 [INFO]   ▶ [1] 生成課程骨架與模組大綱
+2026-04-05 14:35:26,722 [INFO]     → 呼叫子模組：1_project_engine
+2026-04-05 14:35:26,722 [INFO]   ✓ [1] 完成
+2026-04-05 14:35:26,725 [INFO]   ▶ [2] 為每個模組生成學員講義
+2026-04-05 14:35:26,725 [INFO]     → 呼叫子模組：2_learner_handout_generator
+2026-04-05 14:35:26,725 [INFO]   ✓ [2] 完成
+2026-04-05 14:35:26,725 [INFO]   ▶ [3] 將實作任務轉化為 App SDD 規格
+2026-04-05 14:35:26,725 [INFO]     → 呼叫子模組：3_sdd_auto_generator
+2026-04-05 14:35:26,725 [INFO]   ✓ [3] 完成
+2026-04-05 14:35:26,725 [INFO]   ▶ [4] 生成 Gamma 投影片文本
+2026-04-05 14:35:26,725 [INFO]     → 呼叫子模組：4_gamma_generator
+2026-04-05 14:35:26,725 [INFO]   ✓ [4] 完成
+2026-04-05 14:35:26,728 [INFO]   ▶ [5] 驗證所有產物品質
+2026-04-05 14:35:26,728 [INFO]     → 呼叫子模組：6_verifier_auto_checker
+2026-04-05 14:35:26,729 [INFO]   ✓ [5] 完成
+2026-04-05 14:35:26,731 [INFO]   ▶ [6] 打包通過驗證的產物
+2026-04-05 14:35:26,732 [INFO]     → 呼叫子模組：7_packager_auto_zipper
+2026-04-05 14:35:26,732 [INFO]   ✓ [6] 完成
+2026-04-05 14:35:26,732 [INFO]   ▶ [7] 通知相關人員，附上下載連結
+2026-04-05 14:35:26,734 [INFO]     → 呼叫子模組：5_notifier_auto_dispatch
+2026-04-05 14:35:26,734 [INFO]   ✓ [7] 完成
+2026-04-05 14:35:26,736 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\_logs\2026-04-05_build_pipeline.log
+2026-04-05 14:35:26,736 [INFO] 模組 build_pipeline 執行完畢
+2026-04-05 14:38:49,595 [INFO] ExpertAI Course Engine 2 啟動
+2026-04-05 14:38:49,595 [INFO] 指令：/build
+2026-04-05 14:38:49,631 [INFO] 路由至模組：build_pipeline
+2026-04-05 14:38:49,631 [INFO] 開始執行模組：build_pipeline
+2026-04-05 14:38:49,631 [INFO]   ▶ [1] 生成課程骨架與模組大綱
+2026-04-05 14:38:49,631 [INFO]     → 呼叫子模組：1_project_engine
+2026-04-05 14:38:49,631 [INFO]   ✓ [1] 完成
+2026-04-05 14:38:49,639 [INFO]   ▶ [2] 為每個模組生成學員講義
+2026-04-05 14:38:49,640 [INFO]     → 呼叫子模組：2_learner_handout_generator
+2026-04-05 14:38:49,640 [INFO]   ✓ [2] 完成
+2026-04-05 14:38:49,640 [INFO]   ▶ [3] 將實作任務轉化為 App SDD 規格
+2026-04-05 14:38:49,640 [INFO]     → 呼叫子模組：3_sdd_auto_generator
+2026-04-05 14:38:49,640 [INFO]   ✓ [3] 完成
+2026-04-05 14:38:49,640 [INFO]   ▶ [4] 生成 Gamma 投影片文本
+2026-04-05 14:38:49,640 [INFO]     → 呼叫子模組：4_gamma_generator
+2026-04-05 14:38:49,643 [INFO]   ✓ [4] 完成
+2026-04-05 14:38:49,643 [INFO]   ▶ [5] 驗證所有產物品質
+2026-04-05 14:38:49,643 [INFO]     → 呼叫子模組：6_verifier_auto_checker
+2026-04-05 14:38:49,644 [INFO]   ✓ [5] 完成
+2026-04-05 14:38:49,644 [INFO]   ▶ [6] 打包通過驗證的產物
+2026-04-05 14:38:49,644 [INFO]     → 呼叫子模組：7_packager_auto_zipper
+2026-04-05 14:38:49,644 [INFO]   ✓ [6] 完成
+2026-04-05 14:38:49,646 [INFO]   ▶ [7] 通知相關人員，附上下載連結
+2026-04-05 14:38:49,647 [INFO]     → 呼叫子模組：5_notifier_auto_dispatch
+2026-04-05 14:38:49,647 [INFO]   ✓ [7] 完成
+2026-04-05 14:38:49,650 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\_logs\2026-04-05_build_pipeline.log
+2026-04-05 14:38:49,650 [INFO] 模組 build_pipeline 執行完畢
+2026-04-05 14:40:57,898 [INFO] ExpertAI Course Engine 啟動
+2026-04-05 14:40:57,898 [INFO] 指令：/build
+2026-04-05 14:40:57,925 [INFO] 路由至模組：build_pipeline
+2026-04-05 14:40:57,925 [INFO] 開始執行模組：build_pipeline
+2026-04-05 14:40:57,928 [INFO]   ▶ [1] 生成課程骨架與模組大綱
+2026-04-05 14:40:57,928 [INFO]     → 呼叫子模組：1_project_engine
+2026-04-05 14:40:57,928 [INFO]   ✓ [1] 完成
+2026-04-05 14:40:57,928 [INFO]   ▶ [2] 為每個模組生成學員講義
+2026-04-05 14:40:57,928 [INFO]     → 呼叫子模組：2_learner_handout_generator
+2026-04-05 14:40:57,928 [INFO]   ✓ [2] 完成
+2026-04-05 14:40:57,928 [INFO]   ▶ [3] 將實作任務轉化為 App SDD 規格
+2026-04-05 14:40:57,928 [INFO]     → 呼叫子模組：3_sdd_auto_generator
+2026-04-05 14:40:57,928 [INFO]   ✓ [3] 完成
+2026-04-05 14:40:57,928 [INFO]   ▶ [4] 生成 Gamma 投影片文本
+2026-04-05 14:40:57,928 [INFO]     → 呼叫子模組：4_gamma_generator
+2026-04-05 14:40:57,928 [INFO]   ✓ [4] 完成
+2026-04-05 14:40:57,928 [INFO]   ▶ [5] 驗證所有產物品質
+2026-04-05 14:40:57,928 [INFO]     → 呼叫子模組：6_verifier_auto_checker
+2026-04-05 14:40:57,932 [INFO]   ✓ [5] 完成
+2026-04-05 14:40:57,932 [INFO]   ▶ [6] 打包通過驗證的產物
+2026-04-05 14:40:57,932 [INFO]     → 呼叫子模組：7_packager_auto_zipper
+2026-04-05 14:40:57,934 [INFO]   ✓ [6] 完成
+2026-04-05 14:40:57,936 [INFO]   ▶ [7] 通知相關人員，附上下載連結
+2026-04-05 14:40:57,937 [INFO]     → 呼叫子模組：5_notifier_auto_dispatch
+2026-04-05 14:40:57,937 [INFO]   ✓ [7] 完成
+2026-04-05 14:40:57,939 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\_logs\2026-04-05_build_pipeline.log
+2026-04-05 14:40:57,939 [INFO] 模組 build_pipeline 執行完畢
+2026-04-05 14:44:36,479 [INFO] ExpertAI Course Engine 啟動
+2026-04-05 14:44:36,479 [INFO] 指令：/verify
+2026-04-05 14:44:36,521 [ERROR] 無法載入模組：6_verifier_auto_checker.yaml
+2026-04-05 14:47:30,285 [INFO] ExpertAI Course Engine 啟動
+2026-04-05 14:47:30,285 [INFO] 指令：/verify
+2026-04-05 14:47:30,343 [INFO] 路由至模組：verifier_auto_checker
+2026-04-05 14:47:30,343 [INFO] 開始執行模組：verifier_auto_checker
+2026-04-05 14:47:30,349 [WARNING] 模組 verifier_auto_checker 沒有定義 sequence 或 steps
+2026-04-05 14:48:08,447 [INFO] ExpertAI Course Engine 啟動
+2026-04-05 14:48:08,447 [INFO] 指令：/verify
+2026-04-05 14:48:08,500 [INFO] 路由至模組：verifier_auto_checker
+2026-04-05 14:48:08,500 [INFO] 開始執行模組：verifier_auto_checker
+2026-04-05 14:48:08,500 [WARNING] 模組 verifier_auto_checker 沒有定義 sequence 或 steps
+2026-04-05 14:49:11,092 [INFO] ExpertAI Course Engine 啟動
+2026-04-05 14:49:11,092 [INFO] 指令：/verify
+2026-04-05 14:49:11,183 [INFO] 路由至模組：verifier_auto_checker
+2026-04-05 14:49:11,183 [INFO] 開始執行模組：verifier_auto_checker
+2026-04-05 14:49:11,183 [INFO]   ▶ [1] 掃描 artifacts/ 目錄，收集所有產物檔案清單
+2026-04-05 14:49:11,183 [INFO]     → 輸出欄位：file_inventory
+2026-04-05 14:49:11,183 [INFO]   ✓ [1] 完成
+2026-04-05 14:49:11,183 [INFO]   ▶ [2] 依序執行 checks[] 中的結構驗證（C01–C05）
+2026-04-05 14:49:11,183 [INFO]     → 輸出欄位：structural_results
+2026-04-05 14:49:11,183 [INFO]   ✓ [2] 完成
+2026-04-05 14:49:11,183 [INFO]   ▶ [3] 依序執行 checks[] 中的內容驗證（C06–C10）
+2026-04-05 14:49:11,183 [INFO]     → 輸出欄位：content_results
+2026-04-05 14:49:11,183 [INFO]   ✓ [3] 完成
+2026-04-05 14:49:11,183 [INFO]   ▶ [4] 嘗試自動修復可處理的問題
+2026-04-05 14:49:11,183 [INFO]     → 輸出欄位：auto_fix_results
+2026-04-05 14:49:11,183 [INFO]   ✓ [4] 完成
+2026-04-05 14:49:11,183 [INFO]   ▶ [5] 彙整結果，生成驗證報告與問題清單
+2026-04-05 14:49:11,183 [INFO]     → 輸出欄位：verification_report
+2026-04-05 14:49:11,189 [INFO]   ✓ [5] 完成
+2026-04-05 14:49:11,189 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\_logs\2026-04-05_verifier_auto_checker.log
+2026-04-05 14:49:11,189 [INFO] 模組 verifier_auto_checker 執行完畢
+2026-04-05 14:49:45,553 [INFO] ExpertAI Course Engine 啟動
+2026-04-05 14:49:45,553 [INFO] 指令：/verify
+2026-04-05 14:49:45,605 [INFO] 路由至模組：verifier_auto_checker
+2026-04-05 14:49:45,605 [INFO] 開始執行模組：verifier_auto_checker
+2026-04-05 14:49:45,605 [INFO]   ▶ [1] 掃描 artifacts/ 目錄，收集所有產物檔案清單
+2026-04-05 14:49:45,605 [INFO]     → 輸出欄位：file_inventory
+2026-04-05 14:49:45,605 [INFO]   ✓ [1] 完成
+2026-04-05 14:49:45,605 [INFO]   ▶ [2] 依序執行 checks[] 中的結構驗證（C01–C05）
+2026-04-05 14:49:45,605 [INFO]     → 輸出欄位：structural_results
+2026-04-05 14:49:45,605 [INFO]   ✓ [2] 完成
+2026-04-05 14:49:45,605 [INFO]   ▶ [3] 依序執行 checks[] 中的內容驗證（C06–C10）
+2026-04-05 14:49:45,605 [INFO]     → 輸出欄位：content_results
+2026-04-05 14:49:45,605 [INFO]   ✓ [3] 完成
+2026-04-05 14:49:45,605 [INFO]   ▶ [4] 嘗試自動修復可處理的問題
+2026-04-05 14:49:45,605 [INFO]     → 輸出欄位：auto_fix_results
+2026-04-05 14:49:45,611 [INFO]   ✓ [4] 完成
+2026-04-05 14:49:45,611 [INFO]   ▶ [5] 彙整結果，生成驗證報告與問題清單
+2026-04-05 14:49:45,611 [INFO]     → 輸出欄位：verification_report
+2026-04-05 14:49:45,611 [INFO]   ✓ [5] 完成
+2026-04-05 14:49:45,614 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\_logs\2026-04-05_verifier_auto_checker.log
+2026-04-05 14:49:45,614 [INFO] 模組 verifier_auto_checker 執行完畢
+2026-04-05 14:53:20,279 [INFO] ExpertAI Course Engine 啟動
+2026-04-05 14:53:20,279 [INFO] 指令：/build
+2026-04-05 14:53:20,319 [INFO] 路由至模組：build_pipeline
+2026-04-05 14:53:20,319 [INFO] 開始執行模組：build_pipeline
+2026-04-05 14:53:20,319 [INFO]   ▶ [1] 生成課程骨架與模組大綱
+2026-04-05 14:53:20,321 [INFO]     → 呼叫子模組：1_project_engine
+2026-04-05 14:53:20,321 [INFO]   ✓ [1] 完成
+2026-04-05 14:53:20,321 [INFO]   ▶ [2] 為每個模組生成學員講義
+2026-04-05 14:53:20,324 [INFO]     → 呼叫子模組：2_learner_handout_generator
+2026-04-05 14:53:20,324 [INFO]   ✓ [2] 完成
+2026-04-05 14:53:20,324 [INFO]   ▶ [3] 將實作任務轉化為 App SDD 規格
+2026-04-05 14:53:20,324 [INFO]     → 呼叫子模組：3_sdd_auto_generator
+2026-04-05 14:53:20,327 [INFO]   ✓ [3] 完成
+2026-04-05 14:53:20,327 [INFO]   ▶ [4] 生成 Gamma 投影片文本
+2026-04-05 14:53:20,327 [INFO]     → 呼叫子模組：4_gamma_generator
+2026-04-05 14:53:20,327 [INFO]   ✓ [4] 完成
+2026-04-05 14:53:20,327 [INFO]   ▶ [5] 驗證所有產物品質
+2026-04-05 14:53:20,329 [INFO]     → 呼叫子模組：6_verifier_auto_checker
+2026-04-05 14:53:20,329 [INFO]   ✓ [5] 完成
+2026-04-05 14:53:20,329 [INFO]   ▶ [6] 打包通過驗證的產物
+2026-04-05 14:53:20,329 [INFO]     → 呼叫子模組：7_packager_auto_zipper
+2026-04-05 14:53:20,329 [INFO]   ✓ [6] 完成
+2026-04-05 14:53:20,331 [INFO]   ▶ [7] 通知相關人員，附上下載連結
+2026-04-05 14:53:20,331 [INFO]     → 呼叫子模組：5_notifier_auto_dispatch
+2026-04-05 14:53:20,331 [INFO]   ✓ [7] 完成
+2026-04-05 14:53:20,333 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\_logs\2026-04-05_build_pipeline.log
+2026-04-05 14:53:20,333 [INFO] 模組 build_pipeline 執行完畢
+2026-04-05 15:12:59,230 [INFO] ExpertAI Course Engine 啟動
+2026-04-05 15:12:59,232 [INFO] 指令：/build
+2026-04-05 15:12:59,251 [INFO] 路由至模組：build_pipeline
+2026-04-05 15:12:59,251 [INFO] 開始執行模組：build_pipeline
+2026-04-05 15:12:59,251 [INFO]   ▶ [1] 生成課程骨架與模組大綱
+2026-04-05 15:12:59,251 [INFO]     → 呼叫子模組：1_project_engine
+2026-04-05 15:13:18,008 [INFO] ExpertAI Course Engine 啟動
+2026-04-05 15:13:18,011 [INFO] 指令：/build
+2026-04-05 15:13:18,036 [INFO] 路由至模組：build_pipeline
+2026-04-05 15:13:18,036 [INFO] 開始執行模組：build_pipeline
+2026-04-05 15:13:18,036 [INFO]   ▶ [1] 生成課程骨架與模組大綱
+2026-04-05 15:13:18,036 [INFO]     → 呼叫子模組：1_project_engine
+2026-04-05 15:13:18,084 [ERROR]     ✗ 未設定 OPENAI_API_KEY。請在 .env 檔案或環境變數中設定。範例：cp .env.example .env 後填入你的 key。
+2026-04-05 15:13:18,084 [ERROR]   ✗ [1] 執行失敗
+2026-04-05 15:13:47,328 [INFO] ExpertAI Course Engine 啟動
+2026-04-05 15:13:47,328 [INFO] 指令：/build
+2026-04-05 15:13:47,357 [INFO] 路由至模組：build_pipeline
+2026-04-05 15:13:47,357 [INFO] 開始執行模組：build_pipeline
+2026-04-05 15:13:47,357 [INFO]   ▶ [1] 生成課程骨架與模組大綱
+2026-04-05 15:13:47,357 [INFO]     → 呼叫子模組：1_project_engine
+2026-04-05 15:13:47,403 [ERROR]     ✗ 未設定 OPENAI_API_KEY。請在 .env 檔案或環境變數中設定。範例：cp .env.example .env 後填入你的 key。
+2026-04-05 15:13:47,404 [ERROR]   ✗ [1] 執行失敗
+2026-04-05 15:13:47,404 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\_logs\2026-04-05_build_pipeline.log
+2026-04-05 15:13:56,292 [INFO] ExpertAI Course Engine 啟動
+2026-04-05 15:13:56,293 [INFO] 指令：/verify
+2026-04-05 15:13:56,318 [INFO] 路由至模組：verifier_auto_checker
+2026-04-05 15:13:56,318 [INFO] 開始執行模組：verifier_auto_checker
+2026-04-05 15:13:56,318 [INFO]   ▶ [1] 掃描 artifacts/ 目錄，收集所有產物檔案清單
+2026-04-05 15:13:56,318 [INFO]     → 輸出欄位：file_inventory
+2026-04-05 15:13:56,318 [INFO]   ✓ [1] 完成
+2026-04-05 15:13:56,318 [INFO]   ▶ [2] 依序執行 checks[] 中的結構驗證（C01–C05）
+2026-04-05 15:13:56,327 [INFO]     → 輸出欄位：structural_results
+2026-04-05 15:13:56,327 [INFO]   ✓ [2] 完成
+2026-04-05 15:13:56,327 [INFO]   ▶ [3] 依序執行 checks[] 中的內容驗證（C06–C10）
+2026-04-05 15:13:56,327 [INFO]     → 輸出欄位：content_results
+2026-04-05 15:13:56,327 [INFO]   ✓ [3] 完成
+2026-04-05 15:13:56,327 [INFO]   ▶ [4] 嘗試自動修復可處理的問題
+2026-04-05 15:13:56,330 [INFO]     → 輸出欄位：auto_fix_results
+2026-04-05 15:13:56,330 [INFO]   ✓ [4] 完成
+2026-04-05 15:13:56,330 [INFO]   ▶ [5] 彙整結果，生成驗證報告與問題清單
+2026-04-05 15:13:56,330 [INFO]     → 輸出欄位：verification_report
+2026-04-05 15:13:56,330 [INFO]   ✓ [5] 完成
+2026-04-05 15:13:56,334 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\_logs\2026-04-05_verifier_auto_checker.log
+2026-04-05 15:13:56,335 [INFO] 模組 verifier_auto_checker 執行完畢
+2026-04-05 15:22:34,434 [INFO] ExpertAI Course Engine 啟動
+2026-04-05 15:22:34,434 [INFO] 指令：/build
+2026-04-05 15:22:34,499 [INFO] 引擎模式：B — 本地模板
+2026-04-05 15:22:34,524 [INFO] 路由至模組：build_pipeline
+2026-04-05 15:22:34,524 [INFO] 開始執行模組：build_pipeline
+2026-04-05 15:22:34,524 [INFO]   ▶ [1] 生成課程骨架與模組大綱
+2026-04-05 15:22:34,524 [INFO]     → 呼叫子模組：1_project_engine
+2026-04-05 15:22:34,534 [INFO] 已寫入 YAML：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\handouts\outline.yaml
+2026-04-05 15:22:34,534 [INFO]     ✓ 本地生成 outline.yaml（6 個模組）
+2026-04-05 15:22:34,534 [INFO]   ✓ [1] 完成
+2026-04-05 15:22:34,534 [INFO]   ▶ [2] 為每個模組生成學員講義
+2026-04-05 15:22:34,534 [INFO]     → 呼叫子模組：2_learner_handout_generator
+2026-04-05 15:22:34,583 [INFO]     → 生成講義：M1
+2026-04-05 15:22:34,591 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\handouts\M1.md
+2026-04-05 15:22:34,592 [INFO]     → 生成講義：M2
+2026-04-05 15:22:34,595 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\handouts\M2.md
+2026-04-05 15:22:34,595 [INFO]     → 生成講義：M3
+2026-04-05 15:22:34,598 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\handouts\M3.md
+2026-04-05 15:22:34,598 [INFO]     → 生成講義：M4
+2026-04-05 15:22:34,598 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\handouts\M4.md
+2026-04-05 15:22:34,598 [INFO]     → 生成講義：M5
+2026-04-05 15:22:34,607 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\handouts\M5.md
+2026-04-05 15:22:34,607 [INFO]     → 生成講義：M6
+2026-04-05 15:22:34,610 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\handouts\M6.md
+2026-04-05 15:22:34,610 [INFO]   ✓ [2] 完成
+2026-04-05 15:22:34,610 [INFO]   ▶ [3] 將實作任務轉化為 App SDD 規格
+2026-04-05 15:22:34,610 [INFO]     → 呼叫子模組：3_sdd_auto_generator
+2026-04-05 15:22:34,623 [INFO]     → 生成 SDD：M3
+2026-04-05 15:22:34,630 [INFO] 已寫入 YAML：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\sdd\M3_sdd.yaml
+2026-04-05 15:22:34,630 [INFO]   ✓ [3] 完成
+2026-04-05 15:22:34,630 [INFO]   ▶ [4] 生成 Gamma 投影片文本
+2026-04-05 15:22:34,630 [INFO]     → 呼叫子模組：4_gamma_generator
+2026-04-05 15:22:34,636 [INFO]     → 生成投影片：M1
+2026-04-05 15:22:34,666 [INFO]     → 生成投影片：M1_system_thinking
+2026-04-05 15:22:34,666 [INFO]     → 生成投影片：M2
+2026-04-05 15:22:34,697 [INFO]     → 生成投影片：M2_good_vs_bad_examples
+2026-04-05 15:22:34,697 [INFO]     → 生成投影片：M2_prompt_skill_design
+2026-04-05 15:22:34,697 [INFO]     → 生成投影片：M3
+2026-04-05 15:22:34,726 [INFO]     → 生成投影片：M3_good_vs_bad_examples
+2026-04-05 15:22:34,726 [INFO]     → 生成投影片：M3_yaml_course_architecture
+2026-04-05 15:22:34,726 [INFO]     → 生成投影片：M4
+2026-04-05 15:22:34,756 [INFO]     → 生成投影片：M4_positioning_patch
+2026-04-05 15:22:34,756 [INFO]     → 生成投影片：M4_workshop_mvp_build
+2026-04-05 15:22:34,756 [INFO]     → 生成投影片：M5
+2026-04-05 15:22:34,792 [INFO]     → 生成投影片：M6
+2026-04-05 15:22:34,820 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\gamma\slides.md
+2026-04-05 15:22:34,820 [INFO]   ✓ [4] 完成
+2026-04-05 15:22:34,820 [INFO]   ▶ [5] 驗證所有產物品質
+2026-04-05 15:22:34,820 [INFO]     → 呼叫子模組：6_verifier_auto_checker
+2026-04-05 15:22:34,820 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\_reports\verify.md
+2026-04-05 15:22:34,820 [INFO]   ✓ [5] 完成
+2026-04-05 15:22:34,820 [INFO]   ▶ [6] 打包通過驗證的產物
+2026-04-05 15:22:34,820 [INFO]     → 呼叫子模組：7_packager_auto_zipper
+2026-04-05 15:22:34,820 [INFO]   ✓ [6] 完成
+2026-04-05 15:22:34,820 [INFO]   ▶ [7] 通知相關人員，附上下載連結
+2026-04-05 15:22:34,820 [INFO]     → 呼叫子模組：5_notifier_auto_dispatch
+2026-04-05 15:22:34,834 [INFO]   ✓ [7] 完成
+2026-04-05 15:22:34,834 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\_logs\2026-04-05_build_pipeline.log
+2026-04-05 15:22:34,834 [INFO] 模組 build_pipeline 執行完畢

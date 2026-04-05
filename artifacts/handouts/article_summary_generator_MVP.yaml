@@ -1,0 +1,32 @@
+module_id: article_summary_generator
+version: "1.0"
+description: >
+  將輸入文章轉換為結構化摘要，供內部培訓與知識整理使用。
+
+inputs:
+  - field: article_text
+    type: string
+    required: true
+
+steps:
+  - id: identify_topic
+    description: "辨識文章主題與核心情境"
+  - id: extract_key_points
+    description: "整理三個關鍵重點"
+  - id: rewrite_for_training
+    description: "轉寫為適合內訓使用的語氣"
+
+outputs:
+  summary:
+    format: markdown
+    sections:
+      - one_sentence_summary
+      - key_points
+      - training_explanation
+
+validation:
+  - "必須輸出三個 key points"
+  - "總字數不得超過 400 字"
+
+error_handling:
+  on_missing_article_text: "要求使用者補上文章內容"
