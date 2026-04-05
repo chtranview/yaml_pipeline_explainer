@@ -1,7 +1,7 @@
-# Python 資料分析實戰 — 投影片文本
+# Consistency Check — 投影片文本
 
 <!-- M1 -->
-## Python 資料分析實戰 — 模組 1
+## Consistency Check — 模組 1
 
 
 ## 學習目標
@@ -44,7 +44,7 @@
 ---
 
 <!-- M2 -->
-## Python 資料分析實戰 — 模組 2
+## Consistency Check — 模組 2
 
 
 ## 學習目標

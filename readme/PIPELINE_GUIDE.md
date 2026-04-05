@@ -1,7 +1,7 @@
 # ExpertAI Course Engine · 團隊操作指南
 > PIPELINE_GUIDE.md · v4.1 · 2026-04-05
 
-這份指南說明如何在 **ChatGPT** 或 **Claude** 環境中執行完整的課程生成流程，適合講師、課程設計師與助理使用。
+這份指南說明如何在 **ChatGPT**、**Claude** 或 **Gemini** 環境中執行完整的課程生成流程，適合講師、課程設計師與助理使用。
 
 > 📌 若你需要在本地端以 Python CLI 執行（離線、CI/CD、版本控管），請參閱 [RUNTIME_GUIDE.md](RUNTIME_GUIDE.md)。
 
@@ -44,7 +44,7 @@ Step 7 → 5_notifier            → Email / LINE
 9 → Meta Loop（improvement.yaml）← 閉環回到 Step 1
 ```
 
-**核心原則：** 系統不是「魔法」，ChatGPT / Claude 是**解讀並模擬執行** YAML 規格的角色。你貼入的 YAML 越完整，輸出品質越穩定。
+**核心原則：** 系統不是「魔法」，ChatGPT / Claude / Gemini 是**解讀並模擬執行** YAML 規格的角色。你貼入的 YAML 越完整，輸出品質越穩定。
 
 > 💡 **Pipeline vs Runtime：** 本指南透過 AI 對話模擬執行 YAML 規格。若需要确定性執行、版本控管或 CI/CD 整合，請參閱 [RUNTIME_GUIDE.md](RUNTIME_GUIDE.md) 以 Python CLI 在本地執行同一套 YAML 流程。
 
@@ -112,6 +112,23 @@ cd yaml_pipeline_explainer
 Claude Code 啟動時會自動讀取 `CLAUDE.md`，無需手動貼入 YAML 全文。它可以直接讀取專案中的 `.yaml` 檔案。
 
 > **優勢：** Claude Code 透過檔案系統存取完整專案，不受上下文視窗限制，且產物直接寫入本地 `artifacts/` 資料夾。
+
+#### Gemini
+
+打開 [Google AI Studio](https://aistudio.google.com/)，建立新的 **Chat Prompt**，在 **System Instructions** 貼入：
+
+```
+你是 ExpertAI Course Engine v4.0。
+請完整閱讀並嚴格遵守以下 YAML 規格執行所有課程生成任務。
+
+[貼入 _index.yaml 全文]
+[貼入 0_build_pipeline.yaml 全文]
+[貼入 1_project_engine_4.0.yaml 全文]
+[貼入 2_learner_handout_generator.yaml 全文]
+... （依需求加入其他模組）
+```
+
+> **提示：** Gemini 的上下文視窗較大（100 萬+ tokens），可一次貼入更多模組 YAML。建議將常用的 0、1、2、6 一次貼入以獲得更一致的輸出。
 
 ### Step 2：執行第一次 /build
 

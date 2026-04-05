@@ -291,3 +291,54 @@
 2026-04-05 15:22:34,834 [INFO]   ✓ [7] 完成
 2026-04-05 15:22:34,834 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\_logs\2026-04-05_build_pipeline.log
 2026-04-05 15:22:34,834 [INFO] 模組 build_pipeline 執行完畢
+2026-04-05 17:31:51,749 [INFO] ExpertAI Course Engine 啟動
+2026-04-05 17:31:51,749 [INFO] 指令：/build
+2026-04-05 17:31:51,776 [INFO] 引擎模式：B — 本地模板
+2026-04-05 17:31:51,785 [INFO] 路由至模組：build_pipeline
+2026-04-05 17:31:51,788 [INFO] 開始執行模組：build_pipeline
+2026-04-05 17:31:51,788 [INFO]   ▶ [1] 生成課程骨架與模組大綱
+2026-04-05 17:31:51,788 [INFO]     → 呼叫子模組：1_project_engine
+2026-04-05 17:31:51,791 [INFO] 已寫入 YAML：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\handouts\outline.yaml
+2026-04-05 17:31:51,791 [INFO]     ✓ 本地生成 outline.yaml（2 個模組）
+2026-04-05 17:31:51,791 [INFO]   ✓ [1] 完成
+2026-04-05 17:31:51,791 [INFO]   ▶ [2] 為每個模組生成學員講義
+2026-04-05 17:31:51,791 [INFO]     → 呼叫子模組：2_learner_handout_generator
+2026-04-05 17:31:51,825 [INFO]     → 生成講義：M1
+2026-04-05 17:31:51,827 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\handouts\M1.md
+2026-04-05 17:31:51,827 [INFO]     → 生成講義：M2
+2026-04-05 17:31:51,828 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\handouts\M2.md
+2026-04-05 17:31:51,828 [INFO]   ✓ [2] 完成
+2026-04-05 17:31:51,828 [INFO]   ▶ [3] 將實作任務轉化為 App SDD 規格
+2026-04-05 17:31:51,829 [INFO]     → 呼叫子模組：3_sdd_auto_generator
+2026-04-05 17:31:51,833 [INFO]     → 生成 SDD：M2
+2026-04-05 17:31:51,835 [INFO] 已寫入 YAML：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\sdd\M2_sdd.yaml
+2026-04-05 17:31:51,835 [INFO]   ✓ [3] 完成
+2026-04-05 17:31:51,835 [INFO]   ▶ [4] 生成 Gamma 投影片文本
+2026-04-05 17:31:51,836 [INFO]     → 呼叫子模組：4_gamma_generator
+2026-04-05 17:31:51,836 [INFO]     → 生成投影片：M1
+2026-04-05 17:31:51,858 [INFO]     → 生成投影片：M1_system_thinking
+2026-04-05 17:31:51,858 [INFO]     → 生成投影片：M2
+2026-04-05 17:31:51,886 [INFO]     → 生成投影片：M2_good_vs_bad_examples
+2026-04-05 17:31:51,886 [INFO]     → 生成投影片：M2_prompt_skill_design
+2026-04-05 17:31:51,886 [INFO]     → 生成投影片：M3
+2026-04-05 17:31:51,886 [INFO]     → 生成投影片：M3_good_vs_bad_examples
+2026-04-05 17:31:51,891 [INFO]     → 生成投影片：M3_yaml_course_architecture
+2026-04-05 17:31:51,891 [INFO]     → 生成投影片：M4
+2026-04-05 17:31:51,891 [INFO]     → 生成投影片：M4_positioning_patch
+2026-04-05 17:31:51,893 [INFO]     → 生成投影片：M4_workshop_mvp_build
+2026-04-05 17:31:51,893 [INFO]     → 生成投影片：M5
+2026-04-05 17:31:51,893 [INFO]     → 生成投影片：M6
+2026-04-05 17:31:51,895 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\gamma\slides.md
+2026-04-05 17:31:51,895 [INFO]   ✓ [4] 完成
+2026-04-05 17:31:51,895 [INFO]   ▶ [5] 驗證所有產物品質
+2026-04-05 17:31:51,895 [INFO]     → 呼叫子模組：6_verifier_auto_checker
+2026-04-05 17:31:51,898 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\_reports\verify.md
+2026-04-05 17:31:51,898 [INFO]   ✓ [5] 完成
+2026-04-05 17:31:51,898 [INFO]   ▶ [6] 打包通過驗證的產物
+2026-04-05 17:31:51,899 [INFO]     → 呼叫子模組：7_packager_auto_zipper
+2026-04-05 17:31:51,900 [INFO]   ✓ [6] 完成
+2026-04-05 17:31:51,900 [INFO]   ▶ [7] 通知相關人員，附上下載連結
+2026-04-05 17:31:51,900 [INFO]     → 呼叫子模組：5_notifier_auto_dispatch
+2026-04-05 17:31:51,900 [INFO]   ✓ [7] 完成
+2026-04-05 17:31:51,900 [INFO] 已寫入 MD：C:\Users\chtra\.vscode\workspace\yaml_pipeline_explainer\artifacts\_logs\2026-04-05_build_pipeline.log
+2026-04-05 17:31:51,905 [INFO] 模組 build_pipeline 執行完畢

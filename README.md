@@ -12,7 +12,7 @@
 
 | 比較 | Pipeline 模式 | Runtime 模式 |
 |------|:------------:|:------------:|
-| 執行環境 | ChatGPT / Claude 對話視窗 | 本地 Python CLI |
+| 執行環境 | ChatGPT / Claude / Gemini 對話視窗 | 本地 Python CLI |
 | 驅動方式 | 貼入 YAML → AI 模擬執行 | `python -m runtime.main` |
 | 適用場景 | 快速原型、單次生成 | CI/CD、批次生成、團隊協作 |
 | 產物輸出 | AI 回覆中複製 | 直接寫入 `artifacts/` |
@@ -84,7 +84,7 @@ yaml_pipeline_explainer/
 ├─ artifacts/               # 產物輸出（handouts/ sdd/ gamma/ _reports/）
 ├─ prompts/                 # 生成模板（講義 / SDD / Email / LINE）
 ├─ readme/
-│  ├─ PIPELINE_GUIDE.md     # ChatGPT / Claude 操作指南
+│  ├─ PIPELINE_GUIDE.md     # ChatGPT / Claude / Gemini 操作指南
 │  └─ RUNTIME_GUIDE.md      # Python Runtime 操作指南
 ├─ CLAUDE.md                # Claude Code System Prompt
 ├─ .env.example             # 環境變數範本（ENGINE_MODE / API Key）
@@ -97,7 +97,7 @@ yaml_pipeline_explainer/
 
 | 文件 | 說明 |
 |------|------|
-| [PIPELINE_GUIDE.md](readme/PIPELINE_GUIDE.md) | 在 ChatGPT / Claude 中以對話方式操作的完整指南 |
+| [PIPELINE_GUIDE.md](readme/PIPELINE_GUIDE.md) | 在 ChatGPT / Claude / Gemini 中以對話方式操作的完整指南 |
 | [RUNTIME_GUIDE.md](readme/RUNTIME_GUIDE.md) | 在本地以 Python CLI 執行的完整指南（含 VS Code 整合） |
 | [CLAUDE.md](CLAUDE.md) | Claude Code 專用 System Prompt |
 
