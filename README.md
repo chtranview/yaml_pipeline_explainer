@@ -1,4 +1,4 @@
-# ExpertAI Course Engine · YAML Pipeline
+# ExpertAI Course Engine · YAML Pipeline & Runtime
 
 > AI 課程自動化生成系統 — 從主題到交付，一套 YAML 驅動全流程
 
